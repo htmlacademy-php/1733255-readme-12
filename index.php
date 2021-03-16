@@ -239,92 +239,90 @@ $post_cards = [
             </div>
         </div>
         <div class="popular__posts">
-            </div>
-                <?php foreach ($post_cards as $key => $value):?>
-                <article class="popular__post post <?=$value['Тип'];?>">
-                    <header class="post__header">
-                        <h2><?=$value['Заголовок'];?></h2>
-                    </header>
-                    <div class="post__main">
-                        <?php if ($value['Тип'] == 'post-quote'): ?>
-                        <blockquote>
-                            <p>
-                                <?=$value['Содержимое'];?>
-                            </p>
-                            <cite>Неизвестный Автор</cite>
-                        </blockquote>
-                        <?php elseif ($value['Тип'] == 'post-link'): ?>
-                        <div class="post-link__wrapper">
-                            <a class="post-link__external" href="http://" title="Перейти по ссылке">
-                                <div class="post-link__info-wrapper">
-                                    <div class="post-link__icon-wrapper">
-                                        <img src="https://www.google.com/s2/favicons?domain=vitadental.ru" alt="Иконка">
-                                    </div>
-                                    <div class="post-link__info">
-                                        <h3><!--здесь заголовок--></h3>
-                                    </div>
+            <?php foreach ($post_cards as $key => $value):?>
+            <article class="popular__post post <?=$value['Тип'];?>">
+                <header class="post__header">
+                    <h2><?=$value['Заголовок'];?></h2>
+                </header>
+                <div class="post__main">
+                    <?php if ($value['Тип'] == 'post-quote'): ?>
+                    <blockquote>
+                        <p>
+                            <?=$value['Содержимое'];?>
+                        </p>
+                        <cite>Неизвестный Автор</cite>
+                    </blockquote>
+                    <?php elseif ($value['Тип'] == 'post-link'): ?>
+                    <div class="post-link__wrapper">
+                        <a class="post-link__external" href="http://" title="Перейти по ссылке">
+                            <div class="post-link__info-wrapper">
+                                <div class="post-link__icon-wrapper">
+                                    <img src="https://www.google.com/s2/favicons?domain=vitadental.ru" alt="Иконка">
                                 </div>
-                                <span><?=$value['Содержимое'];?></span>
-                            </a>
-                        </div>
-                        <?php elseif ($value['Тип'] == 'post-photo'): ?>
-                        <div class="post-photo__image-wrapper">
-                            <img src="img/<?=$value['Содержимое'];?>" alt="Фото от пользователя" width="360" height="240">
-                        </div>
-                        <?php elseif ($value['Тип'] == 'post-video'): ?>
-                        <div class="post-video__block">
-                            <div class="post-video__preview">
-                                <?=embed_youtube_cover(/* вставьте ссылку на видео */); ?>
-                                <img src="img/coast-medium.jpg" alt="Превью к видео" width="360" height="188">
+                                <div class="post-link__info">
+                                    <h3><!--здесь заголовок--></h3>
+                                </div>
                             </div>
-                            <a href="post-details.html" class="post-video__play-big button">
-                                <svg class="post-video__play-big-icon" width="14" height="14">
-                                    <use xlink:href="#icon-video-play-big"></use>
-                                </svg>
-                                <span class="visually-hidden">Запустить проигрыватель</span>
-                            </a>
-                        </div>
-                        <?php elseif ($value['Тип'] == 'post-text'): ?>
-                        <p><?=$value['Содержимое'];?></p>
-                        <?php endif; ?>
+                            <span><?=$value['Содержимое'];?></span>
+                        </a>
                     </div>
-                    <footer class="post__footer">
-                        <div class="post__author">
-                            <a class="post__author-link" href="#" title="Автор">
-                                <div class="post__avatar-wrapper">
-                                    <img class="post__author-avatar" src="img/<?=$value['Аватар'];?>" alt="Аватар пользователя">
-                                </div>
-                                <div class="post__info">
-                                    <b class="post__author-name"><?=$value['Имя юзера'];?></b>
-                                    <time class="post__time" datetime="">дата</time>
-                                </div>
+                    <?php elseif ($value['Тип'] == 'post-photo'): ?>
+                    <div class="post-photo__image-wrapper">
+                        <img src="img/<?=$value['Содержимое'];?>" alt="Фото от пользователя" width="360" height="240">
+                    </div>
+                    <?php elseif ($value['Тип'] == 'post-video'): ?>
+                    <div class="post-video__block">
+                        <div class="post-video__preview">
+                            <?=embed_youtube_cover(/* вставьте ссылку на видео */); ?>
+                            <img src="img/coast-medium.jpg" alt="Превью к видео" width="360" height="188">
+                        </div>
+                        <a href="post-details.html" class="post-video__play-big button">
+                            <svg class="post-video__play-big-icon" width="14" height="14">
+                                <use xlink:href="#icon-video-play-big"></use>
+                            </svg>
+                            <span class="visually-hidden">Запустить проигрыватель</span>
+                        </a>
+                    </div>
+                    <?php elseif ($value['Тип'] == 'post-text'): ?>
+                    <p><?=$value['Содержимое'];?></p>
+                    <?php endif; ?>
+                </div>
+                <footer class="post__footer">
+                    <div class="post__author">
+                        <a class="post__author-link" href="#" title="Автор">
+                            <div class="post__avatar-wrapper">
+                                <img class="post__author-avatar" src="img/<?=$value['Аватар'];?>" alt="Аватар пользователя">
+                            </div>
+                            <div class="post__info">
+                                <b class="post__author-name"><?=$value['Имя юзера'];?></b>
+                                <time class="post__time" datetime="">дата</time>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="post__indicators">
+                        <div class="post__buttons">
+                            <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
+                                <svg class="post__indicator-icon" width="20" height="17">
+                                    <use xlink:href="#icon-heart"></use>
+                                </svg>
+                                <svg class="post__indicator-icon post__indicator-icon--like-active" width="20" height="17">
+                                    <use xlink:href="#icon-heart-active"></use>
+                                </svg>
+                                <span>0</span>
+                                <span class="visually-hidden">количество лайков</span>
+                            </a>
+                            <a class="post__indicator post__indicator--comments button" href="#" title="Комментарии">
+                                <svg class="post__indicator-icon" width="19" height="17">
+                                    <use xlink:href="#icon-comment"></use>
+                                </svg>
+                                <span>0</span>
+                                <span class="visually-hidden">количество комментариев</span>
                             </a>
                         </div>
-                        <div class="post__indicators">
-                            <div class="post__buttons">
-                                <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
-                                    <svg class="post__indicator-icon" width="20" height="17">
-                                        <use xlink:href="#icon-heart"></use>
-                                    </svg>
-                                    <svg class="post__indicator-icon post__indicator-icon--like-active" width="20" height="17">
-                                        <use xlink:href="#icon-heart-active"></use>
-                                    </svg>
-                                    <span>0</span>
-                                    <span class="visually-hidden">количество лайков</span>
-                                </a>
-                                <a class="post__indicator post__indicator--comments button" href="#" title="Комментарии">
-                                    <svg class="post__indicator-icon" width="19" height="17">
-                                        <use xlink:href="#icon-comment"></use>
-                                    </svg>
-                                    <span>0</span>
-                                    <span class="visually-hidden">количество комментариев</span>
-                                </a>
-                            </div>
-                        </div>
-                    </footer>
-                </article>
-                <?php endforeach; ?>
-            </div>
+                    </div>
+                </footer>
+            </article>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
