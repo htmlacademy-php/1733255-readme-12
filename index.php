@@ -376,15 +376,21 @@ $post_cards = [
                     <?php elseif ($value['Тип'] == 'post-text'): ?>
                     <?php
                          function shorten_text($text, $num_letters) {
-                             $num = strlen($text);
+                             $num = mb_strlen($text);
                              if ($num > $num_letters) {
                                  $words = explode(' ', $text);
                                  $new_words = [];
                                  $text_length = 0;
                                  foreach ($words as $word) {
                                      if ($text_length < $num_letters) {
-                                         $text_length += strlen($word);
+                                         if (count($new_words) == 0) {
+                                             $text_length += mb_strlen($word);
+                                         } else {
+                                             $text_length += mb_strlen($word) + 1;
+                                         }
                                          $new_words[] = $word;
+                                     } else {
+                                         break;
                                      }
                                  }
                                  return '<p>' . implode(' ', $new_words) . '...' . '</p>' . '<a class="post-text__more-link" href="#">Читать далее</a>';
