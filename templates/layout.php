@@ -7,7 +7,7 @@ $is_auth = rand(0, 1);
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $page_title ?></title>
+    <title><?= $pageTitle ?></title>
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body class="page">
@@ -153,7 +153,7 @@ $is_auth = rand(0, 1);
                                 </div>
                                 <div class="header__profile-name">
                                 <span>
-                                    <?= $user_name; ?>
+                                    <?= $userName; ?>
                                 </span>
                                     <svg class="header__link-arrow" width="10" height="6">
                                         <use xlink:href="#icon-arrow-right-ad"></use>
@@ -201,7 +201,7 @@ $is_auth = rand(0, 1);
 </header>
 
 <section class="page__main page__main--popular">
-<?= $page_content; ?>
+<?= $pageContent; ?>
 </section>
 
 <footer class="footer">

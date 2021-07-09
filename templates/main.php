@@ -85,20 +85,20 @@
         </div>
     </div>
     <div class="popular__posts">
-        <?php foreach ($post_cards as $key => $value): ?>
-            <article class="popular__post post <?= htmlspecialchars($value['Тип']); ?>">
+        <?php foreach ($postCards as $key => $value): ?>
+            <article class="popular__post post <?= htmlspecialchars($value['type']); ?>">
                 <header class="post__header">
-                    <h2><?= htmlspecialchars($value['Заголовок']); ?></h2>
+                    <h2><?= htmlspecialchars($value['title']); ?></h2>
                 </header>
                 <div class="post__main">
-                    <?php if ($value['Тип'] == 'post-quote'): ?>
+                    <?php if ($value['type'] == 'post-quote'): ?>
                         <blockquote>
                             <p>
-                                <?= htmlspecialchars($value['Содержимое']); ?>
+                                <?= htmlspecialchars($value['content']); ?>
                             </p>
                             <cite>Неизвестный Автор</cite>
                         </blockquote>
-                    <?php elseif ($value['Тип'] == 'post-link'): ?>
+                    <?php elseif ($value['type'] == 'post-link'): ?>
                         <div class="post-link__wrapper">
                             <a class="post-link__external" href="http://" title="Перейти по ссылке">
                                 <div class="post-link__info-wrapper">
@@ -110,15 +110,15 @@
                                         <h3><!--здесь заголовок--></h3>
                                     </div>
                                 </div>
-                                <span><?= htmlspecialchars($value['Содержимое']); ?></span>
+                                <span><?= htmlspecialchars($value['content']); ?></span>
                             </a>
                         </div>
-                    <?php elseif ($value['Тип'] == 'post-photo'): ?>
+                    <?php elseif ($value['type'] == 'post-photo'): ?>
                         <div class="post-photo__image-wrapper">
-                            <img src="img/<?= htmlspecialchars($value['Содержимое']); ?>" alt="Фото от пользователя" width="360"
+                            <img src="img/<?= htmlspecialchars($value['content']); ?>" alt="Фото от пользователя" width="360"
                                  height="240">
                         </div>
-                    <?php elseif ($value['Тип'] == 'post-video'): ?>
+                    <?php elseif ($value['type'] == 'post-video'): ?>
                         <div class="post-video__block">
                             <div class="post-video__preview">
                                 <?= embed_youtube_cover(/* вставьте ссылку на видео */); ?>
@@ -131,7 +131,7 @@
                                 <span class="visually-hidden">Запустить проигрыватель</span>
                             </a>
                         </div>
-                    <?php elseif ($value['Тип'] == 'post-text'): ?>
+                    <?php elseif ($value['type'] == 'post-text'): ?>
                         <?php
                         function shorten_text($text, $num_letters) {
                             $num = mb_strlen($text);
@@ -156,7 +156,7 @@
                                 return '<p>' . $text . '</p>';
                             }
                         }
-                        echo shorten_text(htmlspecialchars($value['Содержимое']), 300);
+                        echo shorten_text(htmlspecialchars($value['content']), 300);
                         ?>
                     <?php endif; ?>
                 </div>
@@ -164,11 +164,11 @@
                     <div class="post__author">
                         <a class="post__author-link" href="#" title="Автор">
                             <div class="post__avatar-wrapper">
-                                <img class="post__author-avatar" src="img/<?= htmlspecialchars($value['Аватар']); ?>"
+                                <img class="post__author-avatar" src="img/<?= htmlspecialchars($value['avatar']); ?>"
                                      alt="Аватар пользователя">
                             </div>
                             <div class="post__info">
-                                <b class="post__author-name"><?= htmlspecialchars($value['Имя юзера']); ?></b>
+                                <b class="post__author-name"><?= htmlspecialchars($value['userName']); ?></b>
                                 <time class="post__time" datetime="">дата</time>
                             </div>
                         </a>
