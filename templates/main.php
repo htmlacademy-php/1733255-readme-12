@@ -1,3 +1,5 @@
+<?php require_once 'helpers.php'?>
+
 <div class="container">
     <h1 class="page__title page__title--popular">Популярное</h1>
 </div>
@@ -169,7 +171,33 @@
                             </div>
                             <div class="post__info">
                                 <b class="post__author-name"><?= htmlspecialchars($value['userName']); ?></b>
-                                <time class="post__time" datetime="">дата</time>
+                                <?php
+                                    date_default_timezone_set('Europe/Moscow');
+                                    $originalDate = generate_random_date($key);
+                                    $instanceDate = date_create($originalDate);
+                                    $titleDate = date_format($instanceDate, 'd.m.Y H:i');
+                                    $countDate = date_diff(date_create(), $instanceDate);
+                                    if ($countDate->i) {
+                                        $properNoun = get_noun_plural_form($countDate->i, 'минуту', 'минуты', 'минут');
+                                        $relativeDate = date_interval_format($countDate, '%i ' . $properNoun . ' назад');
+                                    } elseif ($countDate->h) {
+                                        $properNoun = get_noun_plural_form($countDate->h, 'час', 'часа', 'часов');
+                                        $relativeDate = date_interval_format($countDate, '%h ' . $properNoun . ' назад');
+                                    } elseif ($countDate->d && $countDate->d < 7) {
+                                        $properNoun = get_noun_plural_form($countDate->d, 'день', 'дня', 'дней');
+                                        $relativeDate = date_interval_format($countDate, '%d ' . $properNoun . ' назад');
+                                    } elseif ($countDate->d && $countDate->d >= 7) {
+                                        $weeksCount = ceil($countDate->d / 7);
+                                        $properNoun = get_noun_plural_form($weeksCount, 'неделю', 'недели', 'недель');
+                                        $relativeDate = $weeksCount . ' ' . $properNoun . ' назад';
+                                    } elseif ($countDate->m) {
+                                        $properNoun = get_noun_plural_form($countDate->m, 'месяц', 'месяца', 'месяцев');
+                                        $relativeDate = date_interval_format($countDate, '%m ' . $properNoun . ' назад');
+                                    }
+                                ?>
+                                <time class="post__time" datetime="<?= $originalDate ?>" title="<?= $titleDate ?>">
+                                    <?= $relativeDate ?>
+                                </time>
                             </div>
                         </a>
                     </div>
