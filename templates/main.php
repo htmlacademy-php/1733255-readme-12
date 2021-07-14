@@ -1,3 +1,5 @@
+<?php require_once 'helpers.php'?>
+
 <div class="container">
     <h1 class="page__title page__title--popular">Популярное</h1>
 </div>
@@ -85,20 +87,20 @@
         </div>
     </div>
     <div class="popular__posts">
-        <?php foreach ($postCards as $key => $value): ?>
-            <article class="popular__post post <?= htmlspecialchars($value['type']); ?>">
+        <?php foreach ($postCards as $postIndex => $postCard): ?>
+            <article class="popular__post post <?= htmlspecialchars($postCard['type']); ?>">
                 <header class="post__header">
-                    <h2><?= htmlspecialchars($value['title']); ?></h2>
+                    <h2><?= htmlspecialchars($postCard['title']); ?></h2>
                 </header>
                 <div class="post__main">
-                    <?php if ($value['type'] == 'post-quote'): ?>
+                    <?php if ($postCard['type'] == 'post-quote'): ?>
                         <blockquote>
                             <p>
-                                <?= htmlspecialchars($value['content']); ?>
+                                <?= htmlspecialchars($postCard['content']); ?>
                             </p>
                             <cite>Неизвестный Автор</cite>
                         </blockquote>
-                    <?php elseif ($value['type'] == 'post-link'): ?>
+                    <?php elseif ($postCard['type'] == 'post-link'): ?>
                         <div class="post-link__wrapper">
                             <a class="post-link__external" href="http://" title="Перейти по ссылке">
                                 <div class="post-link__info-wrapper">
@@ -110,15 +112,15 @@
                                         <h3><!--здесь заголовок--></h3>
                                     </div>
                                 </div>
-                                <span><?= htmlspecialchars($value['content']); ?></span>
+                                <span><?= htmlspecialchars($postCard['content']); ?></span>
                             </a>
                         </div>
-                    <?php elseif ($value['type'] == 'post-photo'): ?>
+                    <?php elseif ($postCard['type'] == 'post-photo'): ?>
                         <div class="post-photo__image-wrapper">
-                            <img src="img/<?= htmlspecialchars($value['content']); ?>" alt="Фото от пользователя" width="360"
+                            <img src="img/<?= htmlspecialchars($postCard['content']); ?>" alt="Фото от пользователя" width="360"
                                  height="240">
                         </div>
-                    <?php elseif ($value['type'] == 'post-video'): ?>
+                    <?php elseif ($postCard['type'] == 'post-video'): ?>
                         <div class="post-video__block">
                             <div class="post-video__preview">
                                 <?= embed_youtube_cover(/* вставьте ссылку на видео */); ?>
@@ -131,45 +133,30 @@
                                 <span class="visually-hidden">Запустить проигрыватель</span>
                             </a>
                         </div>
-                    <?php elseif ($value['type'] == 'post-text'): ?>
-                        <?php
-                        function shorten_text($text, $num_letters) {
-                            $num = mb_strlen($text);
-                            if ($num > $num_letters) {
-                                $words = explode(' ', $text);
-                                $new_words = [];
-                                $text_length = 0;
-                                foreach ($words as $word) {
-                                    if ($text_length < $num_letters) {
-                                        if (count($new_words) == 0) {
-                                            $text_length += mb_strlen($word);
-                                        } else {
-                                            $text_length += mb_strlen($word) + 1;
-                                        }
-                                        $new_words[] = $word;
-                                    } else {
-                                        break;
-                                    }
-                                }
-                                return '<p>' . implode(' ', $new_words) . '...' . '</p>' . '<a class="post-text__more-link" href="#">Читать далее</a>';
-                            } else {
-                                return '<p>' . $text . '</p>';
-                            }
-                        }
-                        echo shorten_text(htmlspecialchars($value['content']), 300);
-                        ?>
-                    <?php endif; ?>
+                    <?php elseif ($postCard['type'] == 'post-text'):
+                        echo shorten_text(htmlspecialchars($postCard['content']), 300);
+                    endif; ?>
                 </div>
                 <footer class="post__footer">
                     <div class="post__author">
                         <a class="post__author-link" href="#" title="Автор">
                             <div class="post__avatar-wrapper">
-                                <img class="post__author-avatar" src="img/<?= htmlspecialchars($value['avatar']); ?>"
+                                <img class="post__author-avatar" src="img/<?= htmlspecialchars($postCard['avatar']); ?>"
                                      alt="Аватар пользователя">
                             </div>
                             <div class="post__info">
-                                <b class="post__author-name"><?= htmlspecialchars($value['userName']); ?></b>
-                                <time class="post__time" datetime="">дата</time>
+                                <b class="post__author-name"><?= htmlspecialchars($postCard['userName']); ?></b>
+                                <?php
+                                    date_default_timezone_set('Europe/Moscow');
+                                    $originalDate = generate_random_date($postIndex);
+                                    $publicationDate = date_create($originalDate);
+                                    $titleDate = date_format($publicationDate, 'd.m.Y H:i');
+                                    $interval = date_diff(date_create(), $publicationDate);
+                                    $relativeDate = get_relative_date($interval);
+                                ?>
+                                <time class="post__time" datetime="<?= $originalDate ?>" title="<?= $titleDate ?>">
+                                    <?= $relativeDate ?>
+                                </time>
                             </div>
                         </a>
                     </div>

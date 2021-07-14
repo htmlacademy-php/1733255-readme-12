@@ -262,3 +262,55 @@ function generate_random_date($index)
 
     return $dt;
 }
+
+/**
+ * Сокращает текст до определённой длинны
+ */
+function shorten_text($text, $numLetters) {
+    $num = mb_strlen($text);
+    if ($num > $numLetters) {
+        $words = explode(' ', $text);
+        $newWords = [];
+        $textLength = 0;
+        foreach ($words as $word) {
+            if ($textLength < $numLetters) {
+                if (count($newWords) == 0) {
+                    $textLength += mb_strlen($word);
+                } else {
+                    $textLength += mb_strlen($word) + 1;
+                }
+                $newWords[] = $word;
+            } else {
+                break;
+            }
+        }
+        return '<p>' . implode(' ', $newWords) . '...' . '</p>' . '<a class="post-text__more-link" href="#">Читать далее</a>';
+    } else {
+        return '<p>' . $text . '</p>';
+    }
+}
+
+/**
+ * Формирует относительную дату, используя интервал времени.
+ */
+function get_relative_date($interval) {
+    if ($interval->i) {
+        $properNoun = get_noun_plural_form($interval->i, 'минуту', 'минуты', 'минут');
+        return date_interval_format($interval, '%i ' . $properNoun . ' назад');
+    } elseif ($interval->h) {
+        $properNoun = get_noun_plural_form($interval->h, 'час', 'часа', 'часов');
+        return date_interval_format($interval, '%h ' . $properNoun . ' назад');
+    } elseif ($interval->d && $interval->d < 7) {
+        $properNoun = get_noun_plural_form($interval->d, 'день', 'дня', 'дней');
+        return date_interval_format($interval, '%d ' . $properNoun . ' назад');
+    } elseif ($interval->d && $interval->d >= 7) {
+        $weeksCount = ceil($interval->d / 7);
+        $properNoun = get_noun_plural_form($weeksCount, 'неделю', 'недели', 'недель');
+        return $weeksCount . ' ' . $properNoun . ' назад';
+    } elseif ($interval->m) {
+        $properNoun = get_noun_plural_form($interval->m, 'месяц', 'месяца', 'месяцев');
+        return date_interval_format($interval, '%m ' . $properNoun . ' назад');
+    } else {
+        return '';
+    }
+}
