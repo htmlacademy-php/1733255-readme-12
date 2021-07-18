@@ -134,7 +134,7 @@
                             </a>
                         </div>
                     <?php elseif ($postCard['type'] == 'post-text'):
-                        echo shorten_text(htmlspecialchars($postCard['content']), 300);
+                        echo shortenText(htmlspecialchars($postCard['content']), 300);
                     endif; ?>
                 </div>
                 <footer class="post__footer">
@@ -149,10 +149,9 @@
                                 <?php
                                     date_default_timezone_set('Europe/Moscow');
                                     $originalDate = generate_random_date($postIndex);
-                                    $publicationDate = date_create($originalDate);
-                                    $titleDate = date_format($publicationDate, 'd.m.Y H:i');
-                                    $interval = date_diff(date_create(), $publicationDate);
-                                    $relativeDate = get_relative_date($interval);
+                                    $titleDate = date_format(date_create($originalDate), 'd.m.Y H:i');
+                                    $originalDateTime = new DateTimeImmutable($originalDate);
+                                    $relativeDate = getRelativeDate($originalDateTime);
                                 ?>
                                 <time class="post__time" datetime="<?= $originalDate ?>" title="<?= $titleDate ?>">
                                     <?= $relativeDate ?>
