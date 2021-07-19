@@ -1,7 +1,4 @@
 <?php
-
-use JetBrains\PhpStorm\Pure;
-
 /**
  * Проверяет переданную дату на соответствие формату 'ГГГГ-ММ-ДД'
  *
@@ -297,7 +294,7 @@ function shortenText(string $originalText, int $textLengthLimitation) : string
 /**
  * Формирует относительную дату, используя интервал времени.
  */
-function getRelativeDate($date) : string
+function getRelativeDate(DateTimeImmutable $date) : string
 {
     $currentDate = new DateTimeImmutable('now');
     $interval = $date->diff($currentDate);
