@@ -16,7 +16,7 @@ CREATE TABLE users (
 CREATE TABLE content_types (
        id INT AUTO_INCREMENT PRIMARY KEY,
        type VARCHAR(32) UNIQUE,
-       image_class VARCHAR(128) UNIQUE
+       image_class VARCHAR(128)
 );
 
 CREATE TABLE hashtags (
@@ -30,10 +30,10 @@ CREATE TABLE posts (
        title VARCHAR(255) NOT NULL,
        content TEXT,
        author VARCHAR(128),
-       img VARCHAR(255),
+       img VARCHAR(2000),
        video VARCHAR(255),
        reference VARCHAR(255),
-       views INT,
+       views INT DEFAULT 0,
        user_id INT,
        content_type_id INT,
        FOREIGN KEY (user_id) REFERENCES users(id),
