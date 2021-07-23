@@ -266,14 +266,15 @@ function generate_random_date($index)
 /**
  * Сокращает текст до определённой длинны
  */
-function shorten_text($text, $numLetters) {
-    $num = mb_strlen($text);
-    if ($num > $numLetters) {
-        $words = explode(' ', $text);
+function shortenText(string $originalText, int $textLengthLimitation) : string
+{
+    $originalTextLength = mb_strlen($originalText);
+    if ($originalTextLength > $textLengthLimitation ) {
+        $words = explode(' ', $originalText);
         $newWords = [];
         $textLength = 0;
         foreach ($words as $word) {
-            if ($textLength < $numLetters) {
+            if ($textLength < $textLengthLimitation ) {
                 if (count($newWords) == 0) {
                     $textLength += mb_strlen($word);
                 } else {
@@ -286,14 +287,18 @@ function shorten_text($text, $numLetters) {
         }
         return '<p>' . implode(' ', $newWords) . '...' . '</p>' . '<a class="post-text__more-link" href="#">Читать далее</a>';
     } else {
-        return '<p>' . $text . '</p>';
+        return '<p>' . $originalText . '</p>';
     }
 }
 
 /**
  * Формирует относительную дату, используя интервал времени.
  */
-function get_relative_date($interval) {
+function getRelativeDate(DateTimeImmutable $date) : string
+{
+    $currentDate = new DateTimeImmutable('now');
+    $interval = $date->diff($currentDate);
+
     if ($interval->i) {
         $properNoun = get_noun_plural_form($interval->i, 'минуту', 'минуты', 'минут');
         return date_interval_format($interval, '%i ' . $properNoun . ' назад');
@@ -314,3 +319,5 @@ function get_relative_date($interval) {
         return '';
     }
 }
+
+
