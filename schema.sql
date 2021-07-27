@@ -31,7 +31,7 @@ CREATE TABLE posts (
        content TEXT,
        author VARCHAR(128),
        img VARCHAR(2000),
-       video VARCHAR(255),
+       video VARCHAR(2000),
        reference VARCHAR(255),
        views INT DEFAULT 0,
        user_id INT,
@@ -72,9 +72,9 @@ CREATE TABLE likes (
 CREATE TABLE subscriptions (
        id INT AUTO_INCREMENT PRIMARY KEY,
        author_id INT,
-       subscriber_id INT,
+       subscription_id INT,
        FOREIGN KEY (author_id) REFERENCES users(id),
-       FOREIGN KEY (subscriber_id) REFERENCES users(id)
+       FOREIGN KEY (subscription_id) REFERENCES users(id)
 );
 
 CREATE TABLE messages (
