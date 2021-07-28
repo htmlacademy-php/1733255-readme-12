@@ -1,15 +1,15 @@
 INSERT INTO content_types (type, image_class)
-VALUES ('Текст', 'text'),
-       ('Цитата', 'quote'),
-       ('Картинка', 'photo'),
-       ('Видео', 'video'),
-       ('Ссылка', 'link');
+VALUES ('post-text', 'text'),
+       ('post-quote', 'quote'),
+       ('post-photo', 'photo'),
+       ('post-video', 'video'),
+       ('post-link', 'link');
 
 INSERT INTO users (email, login, password, avatar)
-VALUES ('jaba@gmail.com', 'Виталий', 123, ''),
-       ('humanor@yandex.ru', 'Сергей', 'drowssap', 'userpic-mark.jpg'),
-       ('grog@yandex.ru', 'Георгий', 'typo', 'userpic.jpg'),
-       ('mono@yandex.ru', 'Моника', 401, 'userpic-larisa-small.jpg');
+VALUES ('jaba@gmail.com', 'Виталий', '202cb962ac59075b964b07152d234b70', ''),
+       ('humanor@yandex.ru', 'Сергей', 'b497dd1a701a33026f7211533620780d', 'userpic-mark.jpg'),
+       ('grog@yandex.ru', 'Георгий', '5cde9aad32f032f6f0d00389b6af361b', 'userpic.jpg'),
+       ('mono@yandex.ru', 'Моника', '816b112c6105b3ebd537828a39af4818', 'userpic-larisa-small.jpg');
 
 INSERT INTO posts (title, content, img, reference, views, user_id, content_type_id)
 VALUES ('Цитата', 'Мы в жизни любим только раз, а после ищем лишь похожих', '', '', 5, 2, 2),
@@ -27,14 +27,11 @@ VALUES ('Неплохо получилось', 1, 3),
 /*
  Получаем список постов с сортировкой по популярности вместе с именами авторов и типом контента
  */
-SELECT p.*, login, type
+SELECT p.*, u.login, ct.type
   FROM posts p
-       JOIN users u
-       ON p.user_id = u.id
-
-       JOIN content_types ct
-       ON p.content_type_id = ct.id
- ORDER BY views;
+       JOIN users u ON p.user_id = u.id
+       JOIN content_types ct ON p.content_type_id = ct.id
+ ORDER BY views DESC;
 
 /*
  Получаем список постов для пользователя c id 2
@@ -46,11 +43,10 @@ SELECT *
 /*
  Получаем список комментариев для поста c id 2 c логином пользователя
  */
-SELECT content, login
+SELECT c.content, u.login
   FROM comments c
-       JOIN users u
-       ON c.author_id = u.id
- WHERE post_id = 2
+       JOIN users u ON c.author_id = u.id
+ WHERE post_id = 2;
 
 /*
  Добавляем лайк к посту с id 2;

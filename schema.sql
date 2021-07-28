@@ -69,13 +69,17 @@ CREATE TABLE likes (
        FOREIGN KEY (post_id) REFERENCES posts(id)
 );
 
+CREATE UNIQUE INDEX user_post ON likes(user_id, post_id);
+
 CREATE TABLE subscriptions (
        id INT AUTO_INCREMENT PRIMARY KEY,
        author_id INT,
-       subscription_id INT,
+       subscriber_id INT,
        FOREIGN KEY (author_id) REFERENCES users(id),
-       FOREIGN KEY (subscription_id) REFERENCES users(id)
+       FOREIGN KEY (subscriber_id) REFERENCES users(id)
 );
+
+CREATE UNIQUE INDEX author_subscriber ON subscriptions(author_id, subscriber_id);
 
 CREATE TABLE messages (
        id INT AUTO_INCREMENT PRIMARY KEY,
