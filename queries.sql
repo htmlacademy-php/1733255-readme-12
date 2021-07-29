@@ -1,9 +1,9 @@
 INSERT INTO content_types (type, image_class)
-VALUES ('post-text', 'text'),
-       ('post-quote', 'quote'),
-       ('post-photo', 'photo'),
-       ('post-video', 'video'),
-       ('post-link', 'link');
+VALUES ('text', 'text'),
+       ('quote', 'quote'),
+       ('photo', 'photo'),
+       ('video', 'video'),
+       ('link', 'link');
 
 INSERT INTO users (email, login, password, avatar)
 VALUES ('jaba@gmail.com', 'Виталий', '202cb962ac59075b964b07152d234b70', ''),
