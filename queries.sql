@@ -1,11 +1,11 @@
 INSERT INTO content_types (type, image_class)
-VALUES ('text', 'text'),
-       ('quote', 'quote'),
-       ('photo', 'photo'),
-       ('video', 'video'),
-       ('link', 'link');
+VALUES ('Текст', 'text'),
+       ('Цитата', 'quote'),
+       ('Фото', 'photo'),
+       ('Видео', 'video'),
+       ('Ссылка', 'link');
 
-INSERT INTO users (email, login, password, avatar)
+INSERT INTO users (email, user_name, password, avatar)
 VALUES ('jaba@gmail.com', 'Виталий', '202cb962ac59075b964b07152d234b70', ''),
        ('humanor@yandex.ru', 'Сергей', 'b497dd1a701a33026f7211533620780d', 'userpic-mark.jpg'),
        ('grog@yandex.ru', 'Георгий', '5cde9aad32f032f6f0d00389b6af361b', 'userpic.jpg'),
@@ -18,7 +18,7 @@ VALUES ('Цитата', 'Мы в жизни любим только раз, а �
         '', '', 50, 3, 1),
        ('Наконец, обработал фотки!', '', 'rock-medium.jpg', '', 1, 1, 3),
        ('Моя мечта', '', 'coast-medium.jpg', '', 17, 4, 3),
-       ('Лучшие курсы', '', '', 'www.htmlacademy.ru', 521, 2, 5);
+       ('Лучшие курсы', '', '', 'https://htmlacademy.ru/', 521, 2, 5);
 
 INSERT INTO comments (content, author_id, post_id)
 VALUES ('Неплохо получилось', 1, 3),
@@ -27,10 +27,9 @@ VALUES ('Неплохо получилось', 1, 3),
 /*
  Получаем список постов с сортировкой по популярности вместе с именами авторов и типом контента
  */
-SELECT p.*, u.login, ct.type
-  FROM posts p
-       JOIN users u ON p.user_id = u.id
-       JOIN content_types ct ON p.content_type_id = ct.id
+SELECT p.*, u.user_name, ct.type
+  FROM posts p JOIN users u ON p.user_id = u.id
+               JOIN content_types ct ON p.content_type_id = ct.id
  ORDER BY views DESC;
 
 /*
@@ -43,9 +42,8 @@ SELECT *
 /*
  Получаем список комментариев для поста c id 2 c логином пользователя
  */
-SELECT c.content, u.login
-  FROM comments c
-       JOIN users u ON c.author_id = u.id
+SELECT c.content, u.user_name
+  FROM comments c JOIN users u ON c.author_id = u.id
  WHERE post_id = 2;
 
 /*
@@ -57,5 +55,5 @@ VALUES (1, 2);
 /*
  Добавляем подписку пользователя с id 1 на пользователя с id 3;
  */
-INSERT INTO subscriptions (author_id, subscription_id)
+INSERT INTO subscriptions (author_id, subscriber_id)
 VALUES (3, 1);

@@ -8,7 +8,7 @@ CREATE TABLE users (
        id INT AUTO_INCREMENT PRIMARY KEY,
        registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
        email VARCHAR(255) UNIQUE,
-       login VARCHAR(128) UNIQUE,
+       user_name VARCHAR(128) UNIQUE,
        password CHAR(64),
        avatar VARCHAR(255)
 );

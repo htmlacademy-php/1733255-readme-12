@@ -43,66 +43,36 @@
                         <span>Все</span>
                     </a>
                 </li>
-                <li class="popular__filters-item filters__item">
-                    <a class="filters__button filters__button--photo button" href="#">
-                        <span class="visually-hidden">Фото</span>
-                        <svg class="filters__icon" width="22" height="18">
-                            <use xlink:href="#icon-filter-photo"></use>
-                        </svg>
-                    </a>
-                </li>
-                <li class="popular__filters-item filters__item">
-                    <a class="filters__button filters__button--video button" href="#">
-                        <span class="visually-hidden">Видео</span>
-                        <svg class="filters__icon" width="24" height="16">
-                            <use xlink:href="#icon-filter-video"></use>
-                        </svg>
-                    </a>
-                </li>
-                <li class="popular__filters-item filters__item">
-                    <a class="filters__button filters__button--text button" href="#">
-                        <span class="visually-hidden">Текст</span>
-                        <svg class="filters__icon" width="20" height="21">
-                            <use xlink:href="#icon-filter-text"></use>
-                        </svg>
-                    </a>
-                </li>
-                <li class="popular__filters-item filters__item">
-                    <a class="filters__button filters__button--quote button" href="#">
-                        <span class="visually-hidden">Цитата</span>
-                        <svg class="filters__icon" width="21" height="20">
-                            <use xlink:href="#icon-filter-quote"></use>
-                        </svg>
-                    </a>
-                </li>
-                <li class="popular__filters-item filters__item">
-                    <a class="filters__button filters__button--link button" href="#">
-                        <span class="visually-hidden">Ссылка</span>
-                        <svg class="filters__icon" width="21" height="18">
-                            <use xlink:href="#icon-filter-link"></use>
-                        </svg>
-                    </a>
-                </li>
+                <?php foreach ($contentTypes as $contentIndex => $contentType): ?>
+                    <li class="popular__filters-item filters__item">
+                        <a class="filters__button filters__button--<?= htmlspecialchars($contentType['image_class']); ?> button" href="#">
+                            <span class="visually-hidden"><?= htmlspecialchars($contentType['type']); ?></span>
+                            <svg class="filters__icon" width="22" height="18">
+                                <use xlink:href="#icon-filter-<?= htmlspecialchars($contentType['image_class']); ?>"></use>
+                            </svg>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
             </ul>
         </div>
     </div>
     <div class="popular__posts">
         <?php foreach ($postCards as $postIndex => $postCard): ?>
-            <article class="popular__post post <?= htmlspecialchars($postCard['type']); ?>">
+            <article class="popular__post post post-<?= htmlspecialchars($postCard['image_class']); ?>">
                 <header class="post__header">
                     <h2><?= htmlspecialchars($postCard['title']); ?></h2>
                 </header>
                 <div class="post__main">
-                    <?php if ($postCard['type'] == 'post-quote'): ?>
+                    <?php if ($postCard['image_class'] == 'quote'): ?>
                         <blockquote>
                             <p>
                                 <?= htmlspecialchars($postCard['content']); ?>
                             </p>
                             <cite>Неизвестный Автор</cite>
                         </blockquote>
-                    <?php elseif ($postCard['type'] == 'post-link'): ?>
+                    <?php elseif ($postCard['image_class'] == 'link'): ?>
                         <div class="post-link__wrapper">
-                            <a class="post-link__external" href="http://" title="Перейти по ссылке">
+                            <a class="post-link__external" href="<?= htmlspecialchars($postCard['reference']); ?>" title="Перейти по ссылке">
                                 <div class="post-link__info-wrapper">
                                     <div class="post-link__icon-wrapper">
                                         <img src="https://www.google.com/s2/favicons?domain=vitadental.ru"
@@ -115,12 +85,12 @@
                                 <span><?= htmlspecialchars($postCard['content']); ?></span>
                             </a>
                         </div>
-                    <?php elseif ($postCard['type'] == 'post-photo'): ?>
+                    <?php elseif ($postCard['image_class'] == 'photo'): ?>
                         <div class="post-photo__image-wrapper">
-                            <img src="img/<?= htmlspecialchars($postCard['content']); ?>" alt="Фото от пользователя" width="360"
+                            <img src="img/<?= htmlspecialchars($postCard['img']); ?>" alt="Фото от пользователя" width="360"
                                  height="240">
                         </div>
-                    <?php elseif ($postCard['type'] == 'post-video'): ?>
+                    <?php elseif ($postCard['image_class'] == 'video'): ?>
                         <div class="post-video__block">
                             <div class="post-video__preview">
                                 <?= embed_youtube_cover(/* вставьте ссылку на видео */); ?>
@@ -133,7 +103,7 @@
                                 <span class="visually-hidden">Запустить проигрыватель</span>
                             </a>
                         </div>
-                    <?php elseif ($postCard['type'] == 'post-text'):
+                    <?php elseif ($postCard['image_class'] == 'text'):
                         echo shortenText(htmlspecialchars($postCard['content']), 300);
                     endif; ?>
                 </div>
@@ -141,11 +111,13 @@
                     <div class="post__author">
                         <a class="post__author-link" href="#" title="Автор">
                             <div class="post__avatar-wrapper">
+                                <?php if ($postCard['avatar']) : ?>
                                 <img class="post__author-avatar" src="img/<?= htmlspecialchars($postCard['avatar']); ?>"
                                      alt="Аватар пользователя">
+                                <?php endif; ?>
                             </div>
                             <div class="post__info">
-                                <b class="post__author-name"><?= htmlspecialchars($postCard['userName']); ?></b>
+                                <b class="post__author-name"><?= htmlspecialchars($postCard['user_name']); ?></b>
                                 <?php
                                     date_default_timezone_set('Europe/Moscow');
                                     $originalDate = generate_random_date($postIndex);
