@@ -31,7 +31,7 @@ CREATE TABLE posts (
        content TEXT,
        author VARCHAR(128),
        img VARCHAR(2000),
-       video VARCHAR(255),
+       video VARCHAR(2000),
        reference VARCHAR(255),
        views INT DEFAULT 0,
        user_id INT,
@@ -69,6 +69,8 @@ CREATE TABLE likes (
        FOREIGN KEY (post_id) REFERENCES posts(id)
 );
 
+CREATE UNIQUE INDEX user_post ON likes(user_id, post_id);
+
 CREATE TABLE subscriptions (
        id INT AUTO_INCREMENT PRIMARY KEY,
        author_id INT,
@@ -76,6 +78,8 @@ CREATE TABLE subscriptions (
        FOREIGN KEY (author_id) REFERENCES users(id),
        FOREIGN KEY (subscriber_id) REFERENCES users(id)
 );
+
+CREATE UNIQUE INDEX author_subscriber ON subscriptions(author_id, subscriber_id);
 
 CREATE TABLE messages (
        id INT AUTO_INCREMENT PRIMARY KEY,
