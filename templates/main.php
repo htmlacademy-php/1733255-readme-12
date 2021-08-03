@@ -45,10 +45,10 @@
                 </li>
                 <?php foreach ($contentTypes as $contentIndex => $contentType): ?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--<?= htmlspecialchars($contentType['image_class']); ?> button" href="#">
-                            <span class="visually-hidden"><?= htmlspecialchars($contentType['type']); ?></span>
+                        <a class="filters__button filters__button--<?= htmlspecialchars($contentType['type']); ?> button" href="#">
+                            <span class="visually-hidden"><?= htmlspecialchars($contentType['title']); ?></span>
                             <svg class="filters__icon" width="22" height="18">
-                                <use xlink:href="#icon-filter-<?= htmlspecialchars($contentType['image_class']); ?>"></use>
+                                <use xlink:href="#icon-filter-<?= htmlspecialchars($contentType['type']); ?>"></use>
                             </svg>
                         </a>
                     </li>
@@ -58,19 +58,19 @@
     </div>
     <div class="popular__posts">
         <?php foreach ($postCards as $postIndex => $postCard): ?>
-            <article class="popular__post post post-<?= htmlspecialchars($postCard['image_class']); ?>">
+            <article class="popular__post post <?= htmlspecialchars($postCard['image_class']); ?>">
                 <header class="post__header">
                     <h2><?= htmlspecialchars($postCard['title']); ?></h2>
                 </header>
                 <div class="post__main">
-                    <?php if ($postCard['image_class'] == 'quote'): ?>
+                    <?php if ($postCard['image_class'] == 'post-quote'): ?>
                         <blockquote>
                             <p>
                                 <?= htmlspecialchars($postCard['content']); ?>
                             </p>
                             <cite>Неизвестный Автор</cite>
                         </blockquote>
-                    <?php elseif ($postCard['image_class'] == 'link'): ?>
+                    <?php elseif ($postCard['image_class'] == 'post-link'): ?>
                         <div class="post-link__wrapper">
                             <a class="post-link__external" href="<?= htmlspecialchars($postCard['reference']); ?>" title="Перейти по ссылке">
                                 <div class="post-link__info-wrapper">
@@ -85,12 +85,12 @@
                                 <span><?= htmlspecialchars($postCard['content']); ?></span>
                             </a>
                         </div>
-                    <?php elseif ($postCard['image_class'] == 'photo'): ?>
+                    <?php elseif ($postCard['image_class'] == 'post-photo'): ?>
                         <div class="post-photo__image-wrapper">
                             <img src="img/<?= htmlspecialchars($postCard['img']); ?>" alt="Фото от пользователя" width="360"
                                  height="240">
                         </div>
-                    <?php elseif ($postCard['image_class'] == 'video'): ?>
+                    <?php elseif ($postCard['image_class'] == 'post-video'): ?>
                         <div class="post-video__block">
                             <div class="post-video__preview">
                                 <?= embed_youtube_cover(/* вставьте ссылку на видео */); ?>
@@ -103,7 +103,7 @@
                                 <span class="visually-hidden">Запустить проигрыватель</span>
                             </a>
                         </div>
-                    <?php elseif ($postCard['image_class'] == 'text'):
+                    <?php elseif ($postCard['image_class'] == 'post-text'):
                         echo shortenText(htmlspecialchars($postCard['content']), 300);
                     endif; ?>
                 </div>
