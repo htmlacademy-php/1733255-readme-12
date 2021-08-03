@@ -1,9 +1,9 @@
-INSERT INTO content_types (type, image_class)
-VALUES ('Текст', 'text'),
-       ('Цитата', 'quote'),
-       ('Фото', 'photo'),
-       ('Видео', 'video'),
-       ('Ссылка', 'link');
+INSERT INTO content_types (type, title, image_class)
+VALUES ('text', 'Текст', 'post-text'),
+       ('quote', 'Цитата', 'post-quote'),
+       ('photo', 'Фото', 'post-photo'),
+       ('video', 'Видео', 'post-video'),
+       ('link', 'Ссылка', 'post-link');
 
 INSERT INTO users (email, user_name, password, avatar)
 VALUES ('jaba@gmail.com', 'Виталий', '202cb962ac59075b964b07152d234b70', ''),
@@ -28,8 +28,9 @@ VALUES ('Неплохо получилось', 1, 3),
  Получаем список постов с сортировкой по популярности вместе с именами авторов и типом контента
  */
 SELECT p.*, u.user_name, ct.type
-  FROM posts p JOIN users u ON p.user_id = u.id
-               JOIN content_types ct ON p.content_type_id = ct.id
+  FROM posts p
+  JOIN users u ON p.user_id = u.id
+  JOIN content_types ct ON p.content_type_id = ct.id
  ORDER BY views DESC;
 
 /*
