@@ -1,46 +1,29 @@
 <?php
 require_once ('helpers.php');
 
-$postCards = [
-    [
-        'title' => 'Цитата',
-        'type' => 'post-quote',
-        'content' => 'Мы в жизни любим только раз, а после ищем лишь похожих',
-        'userName' => 'Лариса',
-        'avatar' => 'userpic-larisa-small.jpg'
-    ],
-    [
-        'title' => 'Игра престолов',
-        'type' => 'post-text',
-        'content' => 'Товарищи! Начало повседневной работы по формированию позиции требуют определения и уточнения модели развития. С другой стороны рамки и место обучения кадров способствует подготовки и реализации соответствующий условий активизации. Значимость этих проблем настолько очевидна, что рамки и место обучения кадров в значительной степени обуславливает создание существенных финансовых и административных условий. Таким образом начало повседневной работы по формированию позиции способствует подготовки и реализации систем массового участия. Задача организации, в особенности же реализация намеченных плановых заданий представляет собой интересный эксперимент проверки системы обучения кадров, соответствует насущным потребностям. Таким образом постоянный количественный рост и сфера нашей активности позволяет оценить значение соответствующий условий активизации.',
-        'userName' => 'Владик',
-        'avatar' => 'userpic.jpg'
-    ],
-    [
-        'title' => 'Наконец, обработал фотки!',
-        'type' => 'post-photo',
-        'content' => 'rock-medium.jpg',
-        'userName' => 'Виктор',
-        'avatar' => 'userpic-mark.jpg'
-    ],
-    [
-        'title' => 'Моя мечта',
-        'type' => 'post-photo',
-        'content' => 'coast-medium.jpg',
-        'userName' => 'Лариса',
-        'avatar' => 'userpic-larisa-small.jpg'
-    ],
-    [
-        'title' => 'Лучшие курсы',
-        'type' => 'post-link',
-        'content' => 'www.htmlacademy.ru',
-        'userName' => 'Владик',
-        'avatar' => 'userpic.jpg'
-    ]
-];
+$con = mysqli_connect('localhost', 'root', '', 'readme');
+mysqli_set_charset($con, "utf8");
+$sqlContentTypes = '
+SELECT type, title
+  FROM content_types;
+';
+$sqlPostList = '
+SELECT p.*, u.user_name, u.avatar, ct.image_class
+  FROM posts p
+  JOIN users u ON p.user_id = u.id
+  JOIN content_types ct ON p.content_type_id = ct.id
+ ORDER BY views DESC
+ LIMIT 6;
+';
+$resultContentTypes = mysqli_query($con, $sqlContentTypes);
+$resultPostList = mysqli_query($con, $sqlPostList);
+
+$rowContentTypes = mysqli_fetch_all($resultContentTypes, MYSQLI_ASSOC);
+$rowPostList = mysqli_fetch_all($resultPostList, MYSQLI_ASSOC);
+
 $userName = 'Игорь';
 
-$mainContent = include_template('main.php', ['postCards' => $postCards]);
+$mainContent = include_template('main.php', ['contentTypes' => $rowContentTypes, 'postCards' => $rowPostList]);
 
 $layoutContent = include_template('layout.php', ['pageContent' => $mainContent, 'userName' => $userName,'pageTitle' => 'Главная']);
 
