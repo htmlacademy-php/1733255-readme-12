@@ -294,31 +294,31 @@ function shortenText(string $originalText, int $textLengthLimitation) : string
 /**
  * Формирует относительную дату, используя интервал времени.
  */
-function getRelativeDate(DateTimeImmutable $date, bool $noAddition = false) : string
+function getRelativeDate(DateTimeImmutable $date, bool $needAgoAddition = false) : string
 {
     $currentDate = new DateTimeImmutable('now');
     $interval = $date->diff($currentDate);
-    $ADDITION = $noAddition ? '' : ' назад';
+    $addition = $needAgoAddition ? '' : ' назад';
 
     if ($interval->y) {
     $properNoun = get_noun_plural_form($interval->y, 'год', 'года', 'лет');
-        return date_interval_format($interval, '%y ' . $properNoun . $ADDITION);
+        return date_interval_format($interval, '%y ' . $properNoun . $addition);
     } else if ($interval->m) {
         $properNoun = get_noun_plural_form($interval->m, 'месяц', 'месяца', 'месяцев');
-        return date_interval_format($interval, '%m ' . $properNoun . $ADDITION);
+        return date_interval_format($interval, '%m ' . $properNoun . $addition);
     } else if ($interval->d && $interval->d < 7) {
         $properNoun = get_noun_plural_form($interval->d, 'день', 'дня', 'дней');
-        return date_interval_format($interval, '%d ' . $properNoun . $ADDITION);
+        return date_interval_format($interval, '%d ' . $properNoun . $addition);
     } else if ($interval->d && $interval->d >= 7) {
         $weeksCount = ceil($interval->d / 7);
         $properNoun = get_noun_plural_form($weeksCount, 'неделю', 'недели', 'недель');
-        return $weeksCount . ' ' . $properNoun . $ADDITION;
+        return $weeksCount . ' ' . $properNoun . $addition;
     } else if ($interval->h) {
         $properNoun = get_noun_plural_form($interval->h, 'час', 'часа', 'часов');
-        return date_interval_format($interval, '%h ' . $properNoun . $ADDITION);
+        return date_interval_format($interval, '%h ' . $properNoun . $addition);
     } else if ($interval->i) {
         $properNoun = get_noun_plural_form($interval->i, 'минуту', 'минуты', 'минут');
-        return date_interval_format($interval, '%i ' . $properNoun . $ADDITION);
+        return date_interval_format($interval, '%i ' . $properNoun . $addition);
     } else {
         return '';
     }
@@ -327,20 +327,22 @@ function getRelativeDate(DateTimeImmutable $date, bool $noAddition = false) : st
 /**
  * Формируем URL страницы с заданными параметрами без потери остальных.
  */
-function modifyParamsPageUrl(string $paramKey, mixed $paramValue, bool $remove = false): string
+function modifyParamsPageUrl(string $paramKey, mixed $paramValue): string
 {
     $params = $_GET;
-
-    if ($remove) {
-        unset($params[$paramKey]);
-    } else {
-        $params[$paramKey] = $paramValue;
-    }
-
-    $query = http_build_query($params);
+    array_filter($params, function($param) {return $param !== null;});
+    $params[$paramKey] = $paramValue;
+    $query = count($params) !== 0 ? http_build_query($params) : '';
     $url = ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
     $url = explode('?', $url);
     return $url[0] . '?' . $query;
 }
 
-
+/**
+ * Добавляет протокол к ссылке из базы если он отсутствует
+ */
+function getProtocolLink(string $dbLink): string
+{
+    $secureLink = htmlspecialchars($dbLink);
+    return preg_match('/http/', $secureLink) ? $secureLink : 'http://' . $secureLink;
+}
