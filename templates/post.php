@@ -7,7 +7,7 @@
             <h2 class="visually-hidden">Публикация</h2>
             <div class="post-details__wrapper post-photo">
                 <div class="post-details__main-block post post--details">
-                    <?php if ($postDetails['type'] == 'quote') : ?>
+                    <?php if ($postDetails['type'] === 'quote') : ?>
                         <div class="post-details__image-wrapper post-quote">
                             <div class="post__main">
                                 <blockquote>
@@ -18,10 +18,10 @@
                                 </blockquote>
                             </div>
                         </div>
-                    <?php elseif ($postDetails['type'] == 'link') : ?>
+                    <?php elseif ($postDetails['type'] === 'link') : ?>
                         <div class="post__main">
                             <div class="post-link__wrapper">
-                                <a class="post-link__external" href="http://<?= htmlspecialchars($postDetails['reference']);?>" title="Перейти по ссылке">
+                                <a class="post-link__external" href="<?= getProtocolLink($postDetails['reference']);?>" title="Перейти по ссылке">
                                     <div class="post-link__info-wrapper">
                                         <div class="post-link__icon-wrapper">
                                             <img src="https://www.google.com/s2/favicons?domain=<?= htmlspecialchars($postDetails['img']) ?>" alt="Иконка">
@@ -33,15 +33,15 @@
                                 </a>
                             </div>
                         </div>
-                    <?php elseif ($postDetails['type'] == 'photo') : ?>
+                    <?php elseif ($postDetails['type'] === 'photo') : ?>
                         <div class="post-details__image-wrapper post-photo__image-wrapper">
                             <img src="img/<?= htmlspecialchars($postDetails['img']); ?>" alt="Фото от пользователя" width="760" height="507">
                         </div>
-                    <?php elseif ($postDetails['type'] == 'video') : ?>
+                    <?php elseif ($postDetails['type'] === 'video') : ?>
                         <div class="post-details__image-wrapper post-photo__image-wrapper">
                             <?=embed_youtube_video($postDetails['video']); ?>
                         </div>
-                    <?php elseif ($postDetails['type'] == 'text') : ?>
+                    <?php elseif ($postDetails['type'] === 'text') : ?>
                         <div class="post-details__image-wrapper post-text">
                             <div class="post__main">
                                 <p>
@@ -118,10 +118,9 @@
                                             </a>
                                             <?php
                                             $publicationTime = new DateTimeImmutable($postComment['date']);
-                                            $publicationDateTime = date_format(date_create($postComment['date']), 'Y-m-d');
                                             $relativePublicationTime = getRelativeDate($publicationTime);
                                             ?>
-                                            <time class="comments__time" datetime="<?= $publicationDateTime ?>"><?= $relativePublicationTime ?></time>
+                                            <time class="comments__time" datetime="<?= $publicationTime->format('Y-m-d') ?>"><?= $relativePublicationTime ?></time>
                                         </div>
                                         <p class="comments__text">
                                             <?= htmlspecialchars($postComment['content']) ?>
@@ -133,7 +132,7 @@
                             <?php if ($postComments) : ?>
                             <a class="comments__more-link" href="#">
                                 <span>Показать все комментарии</span>
-                                <sup class="comments__amount">45</sup>
+                                <sup class="comments__amount"><?= count($postComments) ?></sup>
                             </a>
                             <?php endif; ?>
                         </div>
@@ -154,10 +153,9 @@
                             </a>
                             <?php
                             $registrationTime = new DateTimeImmutable($postAuthorDetails['date']);
-                            $registrationDateTime = date_format(date_create($postAuthorDetails['date']), 'Y-m-d');
                             $relativeRegistrationTime = getRelativeDate($registrationTime, true);
                             ?>
-                            <time class="post-details__time user__time" datetime="<?= $registrationDateTime ?>"><?= $relativeRegistrationTime ?> на сайте</time>
+                            <time class="post-details__time user__time" datetime="<?= $registrationTime->format('Y-m-d') ?>"><?= $relativeRegistrationTime ?> на сайте</time>
                         </div>
                     </div>
                     <div class="post-details__rating user__rating">
