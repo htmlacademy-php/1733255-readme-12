@@ -40,7 +40,7 @@
                 <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
                     <?php  ?>
                     <a class="filters__button filters__button--ellipse filters__button--all <?= !$currentContentTypeId ? 'filters__button--active' : ''?>"
-                       href="<?= modifyParamsPageUrl('contentId', '', true) ?>">
+                       href="<?= modifyParamsPageUrl('contentId', null) ?>">
                         <span>Все</span>
                     </a>
                 </li>
@@ -75,7 +75,7 @@
                         </blockquote>
                     <?php elseif ($postCard['type'] == 'link'): ?>
                         <div class="post-link__wrapper">
-                            <a class="post-link__external" href="http://<?= htmlspecialchars($postCard['reference']); ?>" title="Перейти по ссылке">
+                            <a class="post-link__external" href="<?= getProtocolLink($postCard['reference']) ?>" title="Перейти по ссылке">
                                 <div class="post-link__info-wrapper">
                                     <div class="post-link__icon-wrapper">
                                         <img src="https://www.google.com/s2/favicons?domain=vitadental.ru"
