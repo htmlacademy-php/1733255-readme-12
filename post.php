@@ -1,7 +1,16 @@
 <?php
-require_once ('helpers.php');
+require_once('helpers.php');
 
 $currentPostId = $_GET['postId'] ?? false;
+
+/*
+  Выводим ошибку 404 если нет параметра запроса
+ */
+if (!$currentPostId) {
+    http_response_code(404);
+    die();
+}
+
 $con = mysqli_connect('localhost', 'root', '', 'readme');
 mysqli_set_charset($con, "utf8");
 $sqlPost = "
@@ -10,7 +19,7 @@ SELECT p.*, ct.type, COUNT(l.id) AS likes, COUNT(c.id) AS comments_total, u.avat
   JOIN content_types ct ON p.content_type_id = ct.id
   LEFT JOIN likes l ON p.id = l.post_id
   LEFT JOIN comments c ON p.id = c.post_id
-  JOIN users u ON p.user_id = u.id
+  LEFT JOIN users u ON p.user_id = u.id
  WHERE p.id = ?
  GROUP BY p.id;
 ";
@@ -45,41 +54,24 @@ WHERE u.id IN
 GROUP BY u.id;
 ";
 
-$postStmt = mysqli_prepare($con, $sqlPost);
-mysqli_stmt_bind_param($postStmt, 'i', $currentPostId);
-mysqli_stmt_execute($postStmt);
-$resultPost = mysqli_stmt_get_result($postStmt);
-$rowPost = mysqli_fetch_all($resultPost, MYSQLI_ASSOC);
-
-$postHashtagsStmt = mysqli_prepare($con, $sqlPostHashtags);
-mysqli_stmt_bind_param($postHashtagsStmt, 'i', $currentPostId);
-mysqli_stmt_execute($postHashtagsStmt);
-$resultPostHashtags = mysqli_stmt_get_result($postHashtagsStmt);
-$rowPostHashtags = mysqli_fetch_all($resultPostHashtags, MYSQLI_ASSOC);
-
-$postCommentsStmt = mysqli_prepare($con, $sqlPostComments);
-mysqli_stmt_bind_param($postCommentsStmt, 'i', $currentPostId);
-mysqli_stmt_execute($postCommentsStmt);
-$resultPostComments = mysqli_stmt_get_result($postCommentsStmt);
-$rowPostComments = mysqli_fetch_all($resultPostComments, MYSQLI_ASSOC);
-
-$postAuthorStmt = mysqli_prepare($con, $sqlPostAuthor);
-mysqli_stmt_bind_param($postAuthorStmt, 'i', $currentPostId);
-mysqli_stmt_execute($postAuthorStmt);
-$resultPostAuthor = mysqli_stmt_get_result($postAuthorStmt);
-$rowPostAuthor = mysqli_fetch_all($resultPostAuthor, MYSQLI_ASSOC);
+$rowPost = findUserPost($con, $sqlPost, $currentPostId);
+$rowPostHashtags = findUserPost($con, $sqlPostHashtags, $currentPostId);
+$rowPostComments = findUserPost($con, $sqlPostComments, $currentPostId);
+$rowPostAuthor = findUserPost($con, $sqlPostAuthor, $currentPostId);
 
 /*
-  Выводим ошибку 404 если нет таких записей, либо нет параметра запроса
+  Выводим ошибку 404 если нет таких записей
  */
 if (count($rowPost) === 0) {
     http_response_code(404);
     die();
 }
 
+if (!$rowPostAuthor) $rowPostAuthor[0] = null;
+
 $userName = 'Игорь';
 
 $mainContent = include_template('post.php', ['postDetails' => $rowPost[0], 'postHashtags' => $rowPostHashtags, 'postAuthorDetails' => $rowPostAuthor[0], 'postComments' => $rowPostComments]);
-$layoutContent = include_template('layout.php', ['pageContent' => $mainContent, 'userName' => $userName,'pageTitle' => 'Пост']);
+$layoutContent = include_template('layout.php', ['pageContent' => $mainContent, 'userName' => $userName, 'pageTitle' => 'Пост']);
 
 print($layoutContent);
