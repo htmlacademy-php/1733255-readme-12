@@ -335,7 +335,7 @@ function modifyParamsPageUrl(string $paramKey, mixed $paramValue): string
     $query = count($params) !== 0 ? http_build_query($params) : '';
     $url = ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
     $url = explode('?', $url);
-    return $url[0] . '?' . $query;
+    return $query ? $url[0] . '?' . $query : $url[0];
 }
 
 /**
@@ -344,5 +344,17 @@ function modifyParamsPageUrl(string $paramKey, mixed $paramValue): string
 function getProtocolLink(string $dbLink): string
 {
     $secureLink = htmlspecialchars($dbLink);
-    return preg_match('/http/', $secureLink) ? $secureLink : 'http://' . $secureLink;
+    return preg_match('/^http/', $secureLink) ? $secureLink : 'http://' . $secureLink;
+}
+
+/**
+ * Подготавливаем выражение для вывода поста
+ */
+function findUserPost(mysqli $con, string $sql, int $postId): array
+{
+    $postStmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($postStmt, 'i', $postId);
+    mysqli_stmt_execute($postStmt);
+    $resultPost = mysqli_stmt_get_result($postStmt);
+    return mysqli_fetch_all($resultPost, MYSQLI_ASSOC);
 }
