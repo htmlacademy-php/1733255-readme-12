@@ -38,14 +38,17 @@
             <b class="popular__filters-caption filters__caption">Тип контента:</b>
             <ul class="popular__filters-list filters__list">
                 <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                    <a class="filters__button filters__button--ellipse filters__button--all filters__button--active"
-                       href="#">
+                    <?php  ?>
+                    <a class="filters__button filters__button--ellipse filters__button--all <?= !$currentContentTypeId ? 'filters__button--active' : ''?>"
+                       href="<?= modifyParamsPageUrl('contentId', null) ?>">
                         <span>Все</span>
                     </a>
                 </li>
-                <?php foreach ($contentTypes as $contentIndex => $contentType): ?>
+                <?php foreach ($contentTypes as $contentType): ?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--<?= htmlspecialchars($contentType['type']); ?> button" href="#">
+                        <?php $activeClass = $currentContentTypeId === $contentType['id'] ? 'filters__button--active' : ''  ?>
+                        <a class="filters__button filters__button--<?= htmlspecialchars($contentType['type']) . ' ' . $activeClass ?> button"
+                           href="<?= modifyParamsPageUrl('contentId', $contentType['id']); ?>">
                             <span class="visually-hidden"><?= htmlspecialchars($contentType['title']); ?></span>
                             <svg class="filters__icon" width="22" height="18">
                                 <use xlink:href="#icon-filter-<?= htmlspecialchars($contentType['type']); ?>"></use>
@@ -60,19 +63,19 @@
         <?php foreach ($postCards as $postIndex => $postCard): ?>
             <article class="popular__post post <?= htmlspecialchars($postCard['image_class']); ?>">
                 <header class="post__header">
-                    <h2><?= htmlspecialchars($postCard['title']); ?></h2>
+                    <h2><a href="post.php<?= '?postId=' . $postCard['id'] ?>"><?= htmlspecialchars($postCard['title']); ?></a></h2>
                 </header>
                 <div class="post__main">
-                    <?php if ($postCard['image_class'] == 'post-quote'): ?>
+                    <?php if ($postCard['type'] == 'quote'): ?>
                         <blockquote>
                             <p>
                                 <?= htmlspecialchars($postCard['content']); ?>
                             </p>
                             <cite>Неизвестный Автор</cite>
                         </blockquote>
-                    <?php elseif ($postCard['image_class'] == 'post-link'): ?>
+                    <?php elseif ($postCard['type'] == 'link'): ?>
                         <div class="post-link__wrapper">
-                            <a class="post-link__external" href="<?= htmlspecialchars($postCard['reference']); ?>" title="Перейти по ссылке">
+                            <a class="post-link__external" href="<?= getProtocolLink($postCard['reference']) ?>" title="Перейти по ссылке">
                                 <div class="post-link__info-wrapper">
                                     <div class="post-link__icon-wrapper">
                                         <img src="https://www.google.com/s2/favicons?domain=vitadental.ru"
@@ -85,12 +88,12 @@
                                 <span><?= htmlspecialchars($postCard['content']); ?></span>
                             </a>
                         </div>
-                    <?php elseif ($postCard['image_class'] == 'post-photo'): ?>
+                    <?php elseif ($postCard['type'] == 'photo'): ?>
                         <div class="post-photo__image-wrapper">
                             <img src="img/<?= htmlspecialchars($postCard['img']); ?>" alt="Фото от пользователя" width="360"
                                  height="240">
                         </div>
-                    <?php elseif ($postCard['image_class'] == 'post-video'): ?>
+                    <?php elseif ($postCard['type'] == 'video'): ?>
                         <div class="post-video__block">
                             <div class="post-video__preview">
                                 <?= embed_youtube_cover(/* вставьте ссылку на видео */); ?>
@@ -103,7 +106,7 @@
                                 <span class="visually-hidden">Запустить проигрыватель</span>
                             </a>
                         </div>
-                    <?php elseif ($postCard['image_class'] == 'post-text'):
+                    <?php elseif ($postCard['type'] == 'text'):
                         echo shortenText(htmlspecialchars($postCard['content']), 300);
                     endif; ?>
                 </div>

@@ -54,7 +54,31 @@ INSERT INTO likes (user_id, post_id)
 VALUES (1, 2);
 
 /*
- Добавляем подписку пользователя с id 1 на пользователя с id 3;
+ Добавляем подписку пользователя с id 1 на пользователя с id 3
  */
 INSERT INTO subscriptions (author_id, subscriber_id)
 VALUES (3, 1);
+
+/*
+ Добавляем хэштеги
+ */
+INSERT INTO hashtags (hashtag)
+VALUES ('море'),
+       ('философия'),
+       ('камни'),
+       ('красоты'),
+       ('дирижабль'),
+       ('пучина'),
+       ('бариста'),
+       ('слон');
+
+/*
+ Привязываем хэштеги к постам
+ */
+INSERT INTO posts_hashtags (post_id, hashtag_id)
+VALUES (2, 3),
+       (2, 1),
+       (2, 6),
+       (1, 2),
+       (3, 7),
+       (3, 8);

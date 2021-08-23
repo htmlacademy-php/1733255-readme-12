@@ -294,30 +294,67 @@ function shortenText(string $originalText, int $textLengthLimitation) : string
 /**
  * Формирует относительную дату, используя интервал времени.
  */
-function getRelativeDate(DateTimeImmutable $date) : string
+function getRelativeDate(DateTimeImmutable $date, bool $needAgoAddition = false) : string
 {
     $currentDate = new DateTimeImmutable('now');
     $interval = $date->diff($currentDate);
+    $addition = $needAgoAddition ? '' : ' назад';
 
-    if ($interval->i) {
-        $properNoun = get_noun_plural_form($interval->i, 'минуту', 'минуты', 'минут');
-        return date_interval_format($interval, '%i ' . $properNoun . ' назад');
-    } elseif ($interval->h) {
-        $properNoun = get_noun_plural_form($interval->h, 'час', 'часа', 'часов');
-        return date_interval_format($interval, '%h ' . $properNoun . ' назад');
-    } elseif ($interval->d && $interval->d < 7) {
+    if ($interval->y) {
+    $properNoun = get_noun_plural_form($interval->y, 'год', 'года', 'лет');
+        return date_interval_format($interval, '%y ' . $properNoun . $addition);
+    } else if ($interval->m) {
+        $properNoun = get_noun_plural_form($interval->m, 'месяц', 'месяца', 'месяцев');
+        return date_interval_format($interval, '%m ' . $properNoun . $addition);
+    } else if ($interval->d && $interval->d < 7) {
         $properNoun = get_noun_plural_form($interval->d, 'день', 'дня', 'дней');
-        return date_interval_format($interval, '%d ' . $properNoun . ' назад');
-    } elseif ($interval->d && $interval->d >= 7) {
+        return date_interval_format($interval, '%d ' . $properNoun . $addition);
+    } else if ($interval->d && $interval->d >= 7) {
         $weeksCount = ceil($interval->d / 7);
         $properNoun = get_noun_plural_form($weeksCount, 'неделю', 'недели', 'недель');
-        return $weeksCount . ' ' . $properNoun . ' назад';
-    } elseif ($interval->m) {
-        $properNoun = get_noun_plural_form($interval->m, 'месяц', 'месяца', 'месяцев');
-        return date_interval_format($interval, '%m ' . $properNoun . ' назад');
+        return $weeksCount . ' ' . $properNoun . $addition;
+    } else if ($interval->h) {
+        $properNoun = get_noun_plural_form($interval->h, 'час', 'часа', 'часов');
+        return date_interval_format($interval, '%h ' . $properNoun . $addition);
+    } else if ($interval->i) {
+        $properNoun = get_noun_plural_form($interval->i, 'минуту', 'минуты', 'минут');
+        return date_interval_format($interval, '%i ' . $properNoun . $addition);
     } else {
         return '';
     }
 }
 
+/**
+ * Формируем URL страницы с заданными параметрами без потери остальных.
+ */
+function modifyParamsPageUrl(string $paramKey, mixed $paramValue): string
+{
+    $params = $_GET;
+    array_filter($params, function($param) {return $param !== null;});
+    $params[$paramKey] = $paramValue;
+    $query = count($params) !== 0 ? http_build_query($params) : '';
+    $url = ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    $url = explode('?', $url);
+    return $query ? $url[0] . '?' . $query : $url[0];
+}
 
+/**
+ * Добавляет протокол к ссылке из базы если он отсутствует
+ */
+function getProtocolLink(string $dbLink): string
+{
+    $secureLink = htmlspecialchars($dbLink);
+    return preg_match('/^http/', $secureLink) ? $secureLink : 'http://' . $secureLink;
+}
+
+/**
+ * Подготавливаем выражение для вывода поста
+ */
+function findUserPost(mysqli $con, string $sql, int $postId): array
+{
+    $postStmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($postStmt, 'i', $postId);
+    mysqli_stmt_execute($postStmt);
+    $resultPost = mysqli_stmt_get_result($postStmt);
+    return mysqli_fetch_all($resultPost, MYSQLI_ASSOC);
+}
