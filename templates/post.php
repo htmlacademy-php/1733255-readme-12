@@ -139,6 +139,9 @@
                     </div>
                 </div>
                 <div class="post-details__user user">
+                    <?php if (!$postAuthorDetails) : ?>
+                    <h2>Без автора</h2>
+                    <?php else : ?>
                     <div class="post-details__user-info user__info">
                         <div class="post-details__avatar user__avatar">
                             <a class="post-details__avatar-link user__avatar-link" href="#">
@@ -172,6 +175,7 @@
                         <button class="user__button user__button--subscription button button--main" type="button">Подписаться</button>
                         <a class="user__button user__button--writing button button--green" href="#">Сообщение</a>
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </section>
