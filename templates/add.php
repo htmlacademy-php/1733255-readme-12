@@ -1,48 +1,24 @@
-<?php require_once './helpers.php'?>
-
 <?php
-    function checkErrorClass($errors, $field) {
-        return $errors[$type . '-heading'] ? 'form__input-section--error' : '';
-    }
-?>
+require_once './helpers.php';
 
-<?php
-    function createFormTitle($type , $errors): string
-    {
-        var_dump($errors);
-        $errorKey = $type . '-heading';
-        $errorClass = $errors[$type . '-heading'] ? 'form__input-section--error' : '';
-        return '
-        <div class="adding-post__input-wrapper form__input-wrapper">
-            <label class="adding-post__label form__label" for="' . $type . '-heading">Заголовок <span class="form__input-required">*</span></label>
-            <div class="form__input-section ' . $errorClass . '">
-                <input class="adding-post__input form__input" id="' . $type . '-heading" type="text" name="' . $type . '-heading" placeholder="Введите заголовок">
-                <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
-                <div class="form__error-text">
-                    <h3 class="form__error-title">Заголовок сообщения</h3>
-                    <p class="form__error-desc">Текст сообщения об ошибке, подробно объясняющий, что не так.</p>
-                </div>
-            </div>
-        </div>
-        ';
-    }
+$ERROR_CLASS = 'form__input-section--error';
+$TITLE_KEY = 'heading';
+$LINK_KEY = 'url';
+$TEXT_KEY = 'content';
+$AUTHOR_KEY = 'author';
+$TAGS_KEY = 'tags';
 
-    function createFormTags($type): string
-    {
-        return '
-        <div class="adding-post__input-wrapper form__input-wrapper">
-            <label class="adding-post__label form__label" for="' . $type . '-tags">Теги</label>
-            <div class="form__input-section">
-                <input class="adding-post__input form__input" id="' . $type . '-tags" type="text" name="' . $type . '-tags" placeholder="Введите теги">
-                <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
-                <div class="form__error-text">
-                    <h3 class="form__error-title">Заголовок сообщения</h3>
-                    <p class="form__error-desc">Текст сообщения об ошибке, подробно объясняющий, что не так.</p>
-                </div>
-            </div>
-        </div>
-        ';
-    }
+function setErrorClass($inputType, $errors): string
+{
+    if (isset($errors[$inputType])) {
+        return 'form__input-section--error';
+    } else return '';
+}
+
+function setErrorText($inputType, $errors): string
+{
+    return $errors[$inputType] ?? '';
+}
 ?>
 
 <main class="page__main page__main--adding-post">
@@ -70,43 +46,133 @@
                 </div>
                 <div class="adding-post__tab-content">
                     <?php
-                        function checkCurrentType($currentFormType, $allTypes, $currentTypeId): string
-                        {
-                            $currentContent = array_values(array_filter($allTypes, function($row) use ($currentTypeId) {return $row['id'] === $currentTypeId;}));
-                            $activeContentClass = 'tabs__content--active';
-                            return $currentContent[0]['type'] ===  $currentFormType ? $activeContentClass : '';
-                        }
+                        $currentType = array_values(array_filter($postContentTypes, function($row) use ($currentContentTypeId) {return $row['id'] === $currentContentTypeId;}))[0];
+                        $hiddenFormTitle = match ($currentType['type']) {
+                        'text'  => 'текста',
+                        'quote' => 'цитаты',
+                        'link'  => 'ссылки',
+                        'photo' => 'фото',
+                        'video' => 'видео',
+                        default => 'контента',
+                        };
+                        $currentEnctype = $currentType['type'] === 'photo' ? 'enctype="multipart/form-data"' : '';
                     ?>
-                    <section class="adding-post__photo tabs__content <?= checkCurrentType('photo', $postContentTypes, $currentContentTypeId) ?>">
-                        <h2 class="visually-hidden">Форма добавления фото</h2>
-                        <form class="adding-post__form form" action="add.php" method="post" enctype="multipart/form-data">
+                    <section class="adding-post__<?= $currentType['type'] ?> tabs__content tabs__content--active">
+                        <h2 class="visually-hidden">Форма добавления <?= $hiddenFormTitle ?></h2>
+                        <form class="adding-post__form form" action="add.php" method="post" <?= $currentEnctype ?>>
+                            <input type="hidden" name="contentId" value="<?= $currentType['id'] ?>"> <!-- ID контента для POST -->
+                            <input type="hidden" name="contentType" value="<?= $currentType['type'] ?>"> <!-- Тип контента для POST -->
                             <div class="form__text-inputs-wrapper">
                                 <div class="form__text-inputs">
-                                    <?= createFormTitle('photo', $errors)?>
+                                    <!-- Заголовок -->
                                     <div class="adding-post__input-wrapper form__input-wrapper">
-                                        <label class="adding-post__label form__label" for="photo-url">Ссылка из интернета</label>
-                                        <div class="form__input-section">
-                                            <input class="adding-post__input form__input" id="photo-url" type="text" name="photo-link" placeholder="Введите ссылку">
+                                        <label class="adding-post__label form__label" for="heading">Заголовок <span class="form__input-required">*</span></label>
+                                        <div class="form__input-section <?= setErrorClass($TITLE_KEY, $errors) ?>">
+                                            <input class="adding-post__input form__input" id="heading" type="text" name="heading" placeholder="Введите заголовок" value="<?= htmlspecialchars($_POST[$TITLE_KEY] ?? '')?>">
                                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title">Заголовок сообщения</h3>
-                                                <p class="form__error-desc">Текст сообщения об ошибке, подробно объясняющий, что не так.</p>
+                                                <p class="form__error-desc"><?= setErrorText($TITLE_KEY, $errors) ?></p>
                                             </div>
                                         </div>
                                     </div>
-                                    <?= createFormTags('photo')?>
+                                    <?php
+                                    if ($currentType['type'] === 'photo' || $currentType['type'] === 'video' || $currentType['type'] === 'link') :
+
+                                    $linkLable = match ($currentType['type']) {
+                                        'photo' => 'Ссылка из интернета ',
+                                        'video' => 'Ссылка youtube <span class="form__input-required">*</span>',
+                                        'link' => 'Ссылка <span class="form__input-required">*</span>',
+                                    }
+                                    ?>
+                                    <!-- Ссылка -->
+                                    <div class="adding-post__input-wrapper form__input-wrapper">
+                                        <label class="adding-post__label form__label" for="url"><?= $linkLable ?></label>
+                                        <div class="form__input-section <?= setErrorClass('url', $errors) ?>">
+                                            <input class="adding-post__input form__input" id="url" type="text" name="url" placeholder="Введите ссылку" value="<?= htmlspecialchars($_POST[$LINK_KEY] ?? '')?>">
+                                            <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
+                                            <div class="form__error-text">
+                                                <h3 class="form__error-title">Заголовок сообщения</h3>
+                                                <p class="form__error-desc"><?= setErrorText('url', $errors) ?></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php
+                                    endif;
+                                    if ($currentType['type'] === 'quote' || $currentType['type'] === 'text') :
+
+                                    $contentLable = $currentType['type'] === 'quote' ? 'Текст цитаты' : 'Текст поста';
+                                    $contentPlaceholder = $currentType['type'] === 'quote' ? $contentLable : 'Введите текст публикации';
+                                    ?>
+                                    <!-- Текст -->
+                                    <div class="adding-post__textarea-wrapper form__textarea-wrapper">
+                                        <label class="adding-post__label form__label" for="content"><?= $contentLable ?> <span class="form__input-required">*</span></label>
+                                        <div class="form__input-section <?= setErrorClass($TEXT_KEY, $errors) ?>">
+                                            <textarea class="adding-post__textarea form__textarea form__input" id="content" placeholder="<?= $contentPlaceholder ?>" name="content"><?= htmlspecialchars($_POST[$TEXT_KEY] ?? '')?></textarea>
+                                            <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
+                                            <div class="form__error-text">
+                                                <h3 class="form__error-title">Заголовок сообщения</h3>
+                                                <p class="form__error-desc"><?= setErrorText($TEXT_KEY, $errors) ?></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php
+                                    endif;
+                                    if ($currentType['type'] === 'quote') :
+                                    ?>
+                                    <!-- Автор цитаты -->
+                                    <div class="adding-post__textarea-wrapper form__input-wrapper">
+                                        <label class="adding-post__label form__label" for="author">Автор <span class="form__input-required">*</span></label>
+                                        <div class="form__input-section <?= setErrorClass($AUTHOR_KEY, $errors) ?>">
+                                            <input class="adding-post__input form__input" id="author" type="text" name="author" value="<?= htmlspecialchars($_POST[$AUTHOR_KEY] ?? '')?>">
+                                            <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
+                                            <div class="form__error-text">
+                                                <h3 class="form__error-title">Заголовок сообщения</h3>
+                                                <p class="form__error-desc"><?= setErrorText($AUTHOR_KEY, $errors) ?></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                    <!-- Теги -->
+                                    <div class="adding-post__input-wrapper form__input-wrapper">
+                                        <label class="adding-post__label form__label" for="tags">Теги</label>
+                                        <div class="form__input-section <?= setErrorClass($TAGS_KEY, $errors) ?>">
+                                            <input class="adding-post__input form__input" id="tags" type="text" name="tags" placeholder="Введите теги через пробел" value="<?= htmlspecialchars($_POST[$TAGS_KEY] ?? '')?>">
+                                            <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
+                                            <div class="form__error-text">
+                                                <h3 class="form__error-title">Заголовок сообщения</h3>
+                                                <p class="form__error-desc"><?= setErrorText($TAGS_KEY, $errors) ?></p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+                                <!-- Список ошибок -->
+                                <?php if (count($errors)) : ?>
                                 <div class="form__invalid-block">
                                     <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
                                     <ul class="form__invalid-list">
-                                        <li class="form__invalid-item">Заголовок. Это поле должно быть заполнено.</li>
+                                    <?php
+                                    foreach ($errors as $error => $text) :
+                                        $errorType = match($error) {
+                                        'heading' => 'Заголовок',
+                                        'url' => 'Ссылка',
+                                        'content' => 'Текст',
+                                        'author' => 'Автор',
+                                        'tags' => 'Теги',
+                                        }
+                                    ?>
+                                        <li class="form__invalid-item"><?= $errorType . '. ' . $text ?></li>
+                                    <?php endforeach; ?>
                                     </ul>
                                 </div>
+                                <?php endif; ?>
                             </div>
+                            <?php if ($currentType['type'] === 'photo') : ?>
+                            <!-- Загрузка фото -->
                             <div class="adding-post__input-file-container form__input-container form__input-container--file">
                                 <div class="adding-post__input-file-wrapper form__input-file-wrapper">
                                     <div class="adding-post__file-zone adding-post__file-zone--photo form__file-zone dropzone">
-                                        <input class="adding-post__input-file form__input-file" id="userpic-file-photo" type="file" name="userpic-file-photo" title=" ">
+                                        <input class="adding-post__input-file form__input-file" id="photo" type="file" name="photo" title=" ">
                                         <div class="form__file-zone-text">
                                             <span>Перетащите фото сюда</span>
                                         </div>
@@ -122,39 +188,7 @@
 
                                 </div>
                             </div>
-                            <div class="adding-post__buttons">
-                                <button class="adding-post__submit button button--main" type="submit">Опубликовать</button>
-                                <a class="adding-post__close" href="#">Закрыть</a>
-                            </div>
-                        </form>
-                    </section>
-
-                    <section class="adding-post__video tabs__content <?= checkCurrentType('video', $postContentTypes, $currentContentTypeId) ?>">
-                        <h2 class="visually-hidden">Форма добавления видео</h2>
-                        <form class="adding-post__form form" action="add.php" method="post" enctype="multipart/form-data">
-                            <div class="form__text-inputs-wrapper">
-                                <div class="form__text-inputs">
-                                    <?= createFormTitle('video', $errors)?>
-                                    <div class="adding-post__input-wrapper form__input-wrapper">
-                                        <label class="adding-post__label form__label" for="video-url">Ссылка youtube <span class="form__input-required">*</span></label>
-                                        <div class="form__input-section">
-                                            <input class="adding-post__input form__input" id="video-url" type="text" name="video-link" placeholder="Введите ссылку">
-                                            <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
-                                            <div class="form__error-text">
-                                                <h3 class="form__error-title">Заголовок сообщения</h3>
-                                                <p class="form__error-desc">Текст сообщения об ошибке, подробно объясняющий, что не так.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <?= createFormTags('video')?>
-                                </div>
-                                <div class="form__invalid-block">
-                                    <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
-                                    <ul class="form__invalid-list">
-                                        <li class="form__invalid-item">Заголовок. Это поле должно быть заполнено.</li>
-                                    </ul>
-                                </div>
-                            </div>
+                            <?php endif; ?>
 
                             <div class="adding-post__buttons">
                                 <button class="adding-post__submit button button--main" type="submit">Опубликовать</button>
@@ -163,118 +197,6 @@
                         </form>
                     </section>
 
-                    <section class="adding-post__text tabs__content <?= checkCurrentType('text', $postContentTypes, $currentContentTypeId) ?>">
-                        <h2 class="visually-hidden">Форма добавления текста</h2>
-                        <form class="adding-post__form form" action="add.php" method="post">
-                            <div class="form__text-inputs-wrapper">
-                                <div class="form__text-inputs">
-                                    <?= createFormTitle('text', $errors)?>
-                                    <div class="adding-post__textarea-wrapper form__textarea-wrapper">
-                                        <label class="adding-post__label form__label" for="post-text">Текст поста <span class="form__input-required">*</span></label>
-                                        <div class="form__input-section">
-                                            <textarea class="adding-post__textarea form__textarea form__input" id="post-text" placeholder="Введите текст публикации" name="text-content"></textarea>
-                                            <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
-                                            <div class="form__error-text">
-                                                <h3 class="form__error-title">Заголовок сообщения</h3>
-                                                <p class="form__error-desc">Текст сообщения об ошибке, подробно объясняющий, что не так.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <?= createFormTags('text')?>
-                                </div>
-                                <div class="form__invalid-block">
-                                    <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
-                                    <ul class="form__invalid-list">
-                                        <li class="form__invalid-item">Заголовок. Это поле должно быть заполнено.</li>
-                                        <li class="form__invalid-item">Цитата. Она не должна превышать 70 знаков.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="adding-post__buttons">
-                                <button class="adding-post__submit button button--main" type="submit">Опубликовать</button>
-                                <a class="adding-post__close" href="#">Закрыть</a>
-                            </div>
-                        </form>
-                    </section>
-
-                    <section class="adding-post__quote tabs__content <?= checkCurrentType('quote', $postContentTypes, $currentContentTypeId) ?>">
-                        <h2 class="visually-hidden">Форма добавления цитаты</h2>
-                        <form class="adding-post__form form" action="add.php" method="post">
-                            <div class="form__text-inputs-wrapper">
-                                <div class="form__text-inputs">
-                                    <?= createFormTitle('quote', $errors)?>
-                                    <div class="adding-post__input-wrapper form__textarea-wrapper">
-                                        <label class="adding-post__label form__label" for="cite-text">Текст цитаты <span class="form__input-required">*</span></label>
-                                        <div class="form__input-section">
-                                            <textarea class="adding-post__textarea adding-post__textarea--quote form__textarea form__input" id="cite-text" placeholder="Текст цитаты" name="quote-content"></textarea>
-                                            <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
-                                            <div class="form__error-text">
-                                                <h3 class="form__error-title">Заголовок сообщения</h3>
-                                                <p class="form__error-desc">Текст сообщения об ошибке, подробно объясняющий, что не так.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="adding-post__textarea-wrapper form__input-wrapper">
-                                        <label class="adding-post__label form__label" for="quote-author">Автор <span class="form__input-required">*</span></label>
-                                        <div class="form__input-section">
-                                            <input class="adding-post__input form__input" id="quote-author" type="text" name="quote-author">
-                                            <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
-                                            <div class="form__error-text">
-                                                <h3 class="form__error-title">Заголовок сообщения</h3>
-                                                <p class="form__error-desc">Текст сообщения об ошибке, подробно объясняющий, что не так.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <?= createFormTags('quote')?>
-                                </div>
-                                <div class="form__invalid-block">
-                                    <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
-                                    <ul class="form__invalid-list">
-                                        <li class="form__invalid-item">Заголовок. Это поле должно быть заполнено.</li>
-                                        <li class="form__invalid-item">Цитата. Она не должна превышать 70 знаков.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="adding-post__buttons">
-                                <button class="adding-post__submit button button--main" type="submit">Опубликовать</button>
-                                <a class="adding-post__close" href="#">Закрыть</a>
-                            </div>
-                        </form>
-                    </section>
-
-                    <section class="adding-post__link tabs__content <?= checkCurrentType('link', $postContentTypes, $currentContentTypeId) ?>">
-                        <h2 class="visually-hidden">Форма добавления ссылки</h2>
-                        <form class="adding-post__form form" action="add.php" method="post">
-                            <div class="form__text-inputs-wrapper">
-                                <div class="form__text-inputs">
-                                    <?= createFormTitle('link', $errors)?>
-                                    <div class="adding-post__textarea-wrapper form__input-wrapper">
-                                        <label class="adding-post__label form__label" for="post-link">Ссылка <span class="form__input-required">*</span></label>
-                                        <div class="form__input-section">
-                                            <input class="adding-post__input form__input" id="post-link" type="text" name="post-link">
-                                            <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
-                                            <div class="form__error-text">
-                                                <h3 class="form__error-title">Заголовок сообщения</h3>
-                                                <p class="form__error-desc">Текст сообщения об ошибке, подробно объясняющий, что не так.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <?= createFormTags('link')?>
-                                </div>
-                                <div class="form__invalid-block">
-                                    <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
-                                    <ul class="form__invalid-list">
-                                        <li class="form__invalid-item">Заголовок. Это поле должно быть заполнено.</li>
-                                        <li class="form__invalid-item">Цитата. Она не должна превышать 70 знаков.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="adding-post__buttons">
-                                <button class="adding-post__submit button button--main" type="submit">Опубликовать</button>
-                                <a class="adding-post__close" href="#">Закрыть</a>
-                            </div>
-                        </form>
-                    </section>
                 </div>
             </div>
         </div>
