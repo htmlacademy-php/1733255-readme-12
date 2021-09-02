@@ -154,7 +154,7 @@ function include_template($name, array $data = [])
  *
  * @return string Ошибку если валидация не прошла
  */
-function check_youtube_url($url)
+function checkYoutubeUrl(string $url): bool|string
 {
     $id = extract_youtube_id($url);
 
