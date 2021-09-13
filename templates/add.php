@@ -1,12 +1,11 @@
 <?php
 require_once './helpers.php';
 
-$ERROR_CLASS = 'form__input-section--error';
-$TITLE_KEY = 'heading';
-$LINK_KEY = 'url';
-$TEXT_KEY = 'content';
-$AUTHOR_KEY = 'author';
-$TAGS_KEY = 'tags';
+$titleKey = 'heading';
+$linkKey = 'url';
+$textKey = 'content';
+$authorKey = 'author';
+$tagsKey = 'tags';
 
 function setErrorClass($inputType, $errors): string
 {
@@ -46,7 +45,10 @@ function setErrorText($inputType, $errors): string
                 </div>
                 <div class="adding-post__tab-content">
                     <?php
-                        $currentType = array_values(array_filter($postContentTypes, function($row) use ($currentContentTypeId) {return $row['id'] === $currentContentTypeId;}))[0];
+                        $currentType = array_filter($postContentTypes, function($row) use ($currentContentTypeId) {
+                            return $row['id'] === $currentContentTypeId;
+                        }); // Находим нужный тип контента
+                        $currentType = array_values($currentType)[0]; // Убираем вложенность
                         $hiddenFormTitle = match ($currentType['type']) {
                         'text'  => 'текста',
                         'quote' => 'цитаты',
@@ -67,17 +69,18 @@ function setErrorText($inputType, $errors): string
                                     <!-- Заголовок -->
                                     <div class="adding-post__input-wrapper form__input-wrapper">
                                         <label class="adding-post__label form__label" for="heading">Заголовок <span class="form__input-required">*</span></label>
-                                        <div class="form__input-section <?= setErrorClass($TITLE_KEY, $errors) ?>">
-                                            <input class="adding-post__input form__input" id="heading" type="text" name="heading" placeholder="Введите заголовок" value="<?= htmlspecialchars($_POST[$TITLE_KEY] ?? '')?>">
+                                        <div class="form__input-section <?= setErrorClass($titleKey, $errors) ?>">
+                                            <input class="adding-post__input form__input" id="heading" type="text" name="heading" placeholder="Введите заголовок" value="<?= htmlspecialchars($_POST[$titleKey] ?? '')?>">
                                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title">Заголовок сообщения</h3>
-                                                <p class="form__error-desc"><?= setErrorText($TITLE_KEY, $errors) ?></p>
+                                                <p class="form__error-desc"><?= setErrorText($titleKey, $errors) ?></p>
                                             </div>
                                         </div>
                                     </div>
                                     <?php
-                                    if ($currentType['type'] === 'photo' || $currentType['type'] === 'video' || $currentType['type'] === 'link') :
+                                    $typesWithLink = ['photo', 'video', 'link'];
+                                    if (in_array($currentType['type'], $typesWithLink, true)) :
 
                                     $linkLable = match ($currentType['type']) {
                                         'photo' => 'Ссылка из интернета ',
@@ -89,7 +92,7 @@ function setErrorText($inputType, $errors): string
                                     <div class="adding-post__input-wrapper form__input-wrapper">
                                         <label class="adding-post__label form__label" for="url"><?= $linkLable ?></label>
                                         <div class="form__input-section <?= setErrorClass('url', $errors) ?>">
-                                            <input class="adding-post__input form__input" id="url" type="text" name="url" placeholder="Введите ссылку" value="<?= htmlspecialchars($_POST[$LINK_KEY] ?? '')?>">
+                                            <input class="adding-post__input form__input" id="url" type="text" name="url" placeholder="Введите ссылку" value="<?= htmlspecialchars($_POST[$linkKey] ?? '')?>">
                                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title">Заголовок сообщения</h3>
@@ -99,7 +102,8 @@ function setErrorText($inputType, $errors): string
                                     </div>
                                     <?php
                                     endif;
-                                    if ($currentType['type'] === 'quote' || $currentType['type'] === 'text') :
+                                    $typesWithText = ['quote', 'text'];
+                                    if (in_array($currentType['type'], $typesWithText, true)) :
 
                                     $contentLable = $currentType['type'] === 'quote' ? 'Текст цитаты' : 'Текст поста';
                                     $contentPlaceholder = $currentType['type'] === 'quote' ? $contentLable : 'Введите текст публикации';
@@ -107,12 +111,12 @@ function setErrorText($inputType, $errors): string
                                     <!-- Текст -->
                                     <div class="adding-post__textarea-wrapper form__textarea-wrapper">
                                         <label class="adding-post__label form__label" for="content"><?= $contentLable ?> <span class="form__input-required">*</span></label>
-                                        <div class="form__input-section <?= setErrorClass($TEXT_KEY, $errors) ?>">
-                                            <textarea class="adding-post__textarea form__textarea form__input" id="content" placeholder="<?= $contentPlaceholder ?>" name="content"><?= htmlspecialchars($_POST[$TEXT_KEY] ?? '')?></textarea>
+                                        <div class="form__input-section <?= setErrorClass($textKey, $errors) ?>">
+                                            <textarea class="adding-post__textarea form__textarea form__input" id="content" placeholder="<?= $contentPlaceholder ?>" name="content"><?= htmlspecialchars($_POST[$textKey] ?? '')?></textarea>
                                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title">Заголовок сообщения</h3>
-                                                <p class="form__error-desc"><?= setErrorText($TEXT_KEY, $errors) ?></p>
+                                                <p class="form__error-desc"><?= setErrorText($textKey, $errors) ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -123,12 +127,12 @@ function setErrorText($inputType, $errors): string
                                     <!-- Автор цитаты -->
                                     <div class="adding-post__textarea-wrapper form__input-wrapper">
                                         <label class="adding-post__label form__label" for="author">Автор <span class="form__input-required">*</span></label>
-                                        <div class="form__input-section <?= setErrorClass($AUTHOR_KEY, $errors) ?>">
-                                            <input class="adding-post__input form__input" id="author" type="text" name="author" value="<?= htmlspecialchars($_POST[$AUTHOR_KEY] ?? '')?>">
+                                        <div class="form__input-section <?= setErrorClass($authorKey, $errors) ?>">
+                                            <input class="adding-post__input form__input" id="author" type="text" name="author" value="<?= htmlspecialchars($_POST[$authorKey] ?? '')?>">
                                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title">Заголовок сообщения</h3>
-                                                <p class="form__error-desc"><?= setErrorText($AUTHOR_KEY, $errors) ?></p>
+                                                <p class="form__error-desc"><?= setErrorText($authorKey, $errors) ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -136,12 +140,12 @@ function setErrorText($inputType, $errors): string
                                     <!-- Теги -->
                                     <div class="adding-post__input-wrapper form__input-wrapper">
                                         <label class="adding-post__label form__label" for="tags">Теги</label>
-                                        <div class="form__input-section <?= setErrorClass($TAGS_KEY, $errors) ?>">
-                                            <input class="adding-post__input form__input" id="tags" type="text" name="tags" placeholder="Введите теги через пробел" value="<?= htmlspecialchars($_POST[$TAGS_KEY] ?? '')?>">
+                                        <div class="form__input-section <?= setErrorClass($tagsKey, $errors) ?>">
+                                            <input class="adding-post__input form__input" id="tags" type="text" name="tags" placeholder="Введите теги через пробел" value="<?= htmlspecialchars($_POST[$tagsKey] ?? '')?>">
                                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title">Заголовок сообщения</h3>
-                                                <p class="form__error-desc"><?= setErrorText($TAGS_KEY, $errors) ?></p>
+                                                <p class="form__error-desc"><?= setErrorText($tagsKey, $errors) ?></p>
                                             </div>
                                         </div>
                                     </div>
