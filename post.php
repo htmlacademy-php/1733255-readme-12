@@ -67,11 +67,11 @@ if (count($rowPost) === 0) {
     die();
 }
 
-if (!$rowPostAuthor) $rowPostAuthor[0] = null;
+$postAuthorData = $rowPostAuthor[0] ?? null;
 
 $userName = 'Игорь';
 
-$mainContent = include_template('post.php', ['postDetails' => $rowPost[0], 'postHashtags' => $rowPostHashtags, 'postAuthorDetails' => $rowPostAuthor[0], 'postComments' => $rowPostComments]);
+$mainContent = include_template('post.php', ['postDetails' => $rowPost[0], 'postHashtags' => $rowPostHashtags, 'postAuthorDetails' => $postAuthorData, 'postComments' => $rowPostComments]);
 $layoutContent = include_template('layout.php', ['pageContent' => $mainContent, 'userName' => $userName, 'pageTitle' => 'Пост']);
 
 print($layoutContent);
