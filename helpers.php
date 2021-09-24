@@ -358,3 +358,15 @@ function findUserPost(mysqli $con, string $sql, int $postId): array
     $resultPost = mysqli_stmt_get_result($postStmt);
     return mysqli_fetch_all($resultPost, MYSQLI_ASSOC);
 }
+
+function setErrorClass($inputType, $errors): string
+{
+    if (isset($errors[$inputType])) {
+        return 'form__input-section--error';
+    } else return '';
+}
+
+function setErrorText($inputType, $errors): string
+{
+    return $errors[$inputType] ?? '';
+}
