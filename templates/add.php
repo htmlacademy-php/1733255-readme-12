@@ -7,17 +7,7 @@ $textKey = 'content';
 $authorKey = 'author';
 $tagsKey = 'tags';
 
-function setErrorClass($inputType, $errors): string
-{
-    if (isset($errors[$inputType])) {
-        return 'form__input-section--error';
-    } else return '';
-}
 
-function setErrorText($inputType, $errors): string
-{
-    return $errors[$inputType] ?? '';
-}
 ?>
 
 <main class="page__main page__main--adding-post">
