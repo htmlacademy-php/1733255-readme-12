@@ -1,7 +1,7 @@
 <?php
 require_once ('helpers.php');
 
-function validateTitle(string $title) :string
+function validateTitle(string $title): string
 {
     if (empty($title)) {
         return "Поле не заполнено";
@@ -10,7 +10,7 @@ function validateTitle(string $title) :string
     }
 }
 
-function validateContent(string $content) :string
+function validateContent(string $content): string
 {
     if (empty($content)) {
         return "Поле не заполнено";
@@ -19,7 +19,7 @@ function validateContent(string $content) :string
     }
 }
 
-function validateAuthor(string $author) :string
+function validateAuthor(string $author): string
 {
     if (empty($author)) {
         return "Поле не заполнено";
@@ -28,7 +28,7 @@ function validateAuthor(string $author) :string
     }
 }
 
-function validateUrl(string $url) :string
+function validateUrl(string $url): string
 {
     // Если тип контента - фото
     if (isset($_FILES['photo'])) {
@@ -63,20 +63,32 @@ function validateUrl(string $url) :string
     }
 }
 
-function validateEmail(string $mail, array $existingEmails) :string
+function validateEmail(string $mail, mysqli $con): string
 {
+
     if (empty($mail)) {
         return "Поле не заполнено";
     } elseif (!filter_var($mail, FILTER_VALIDATE_EMAIL)) {
         return "Введите корректный email";
-    } elseif (in_array($mail, $existingEmails)) {
-        return "Пользователь с такой электронной почтой уже существует";
     } else {
-        return '';
+        $sqlUser = '
+        SELECT email
+          FROM users
+         WHERE email = ?
+        ';
+        $stmt = dbGetPrepareStmt($con, $sqlUser, [$mail]);
+        mysqli_stmt_execute($stmt);
+        $resultUser = mysqli_stmt_get_result($stmt);
+        $rowUser = mysqli_fetch_all($resultUser, MYSQLI_ASSOC);
+        if (!empty($rowUser)) {
+            return "Пользователь с такой электронной почтой уже существует";
+        } else {
+            return '';
+        }
     }
 }
 
-function validateLogin(string $login) :string
+function validateLogin(string $login): string
 {
     if (empty($login)) {
         return "Поле не заполнено";
@@ -85,7 +97,7 @@ function validateLogin(string $login) :string
     }
 }
 
-function validatePassword(string $password) :string
+function validatePassword(string $password): string
 {
     if (empty($password)) {
         return "Поле не заполнено";
@@ -94,7 +106,7 @@ function validatePassword(string $password) :string
     }
 }
 
-function validatePasswordRepeat(string $password, string $passwordRepeat) :string
+function validatePasswordRepeat(string $password, string $passwordRepeat): string
 {
     if (empty($passwordRepeat)) {
         return "Поле не заполнено";
@@ -105,7 +117,7 @@ function validatePasswordRepeat(string $password, string $passwordRepeat) :strin
     }
 }
 
-function validateUserPic(array $picFile) :string
+function validateUserPic(array $picFile): string
 {
     $fileTypes = ['image/png', 'image/jpeg', 'image/gif'];
     if (!empty($picFile['type']) && !in_array($picFile['type'], $fileTypes)) {
