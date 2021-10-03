@@ -359,14 +359,20 @@ function findUserPost(mysqli $con, string $sql, int $postId): array
     return mysqli_fetch_all($resultPost, MYSQLI_ASSOC);
 }
 
-function setErrorClass($inputType, $errors): string
+function getErrorClass($inputType, $errors): string
 {
     if (isset($errors[$inputType])) {
         return 'form__input-section--error';
     } else return '';
 }
 
-function setErrorText($inputType, $errors): string
+function getErrorText($inputType, $errors): string
 {
     return $errors[$inputType] ?? '';
+}
+
+function prepareSqlInserts(string $mask, array $insertedValues): string
+{
+    $insertValues = str_repeat($mask, count($insertedValues));
+    return substr($insertValues, 0, -1);// Убираем последнюю запятую
 }
