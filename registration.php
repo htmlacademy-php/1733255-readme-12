@@ -5,33 +5,28 @@ require_once ('validation.php');
 $con = mysqli_connect('localhost', 'root', '', 'readme');
 mysqli_set_charset($con, "utf8");
 
-$sqlUsers = '
-SELECT email
-FROM users;
-';
-$resultUsers = mysqli_query($con, $sqlUsers);
-$rowUsers = mysqli_fetch_all($resultUsers, MYSQLI_ASSOC);
-$existingEmails = [];
-foreach ($rowUsers as $user) {
-    array_push($existingEmails, $user['email']);
-}
-
 $isSetUserPic = isset($_FILES['userpic-file']) && !boolval($_FILES['userpic-file']['error']);
 
 $fileTypes = ['image/png', 'image/jpeg', 'image/gif'];
 $errors = [];
+
+$email = $_POST['email'] ?? '';
+$login = $_POST['login'] ?? '';
+$password = $_POST['password'] ?? '';
+$passwordRepeat = $_POST['password-repeat'] ?? '';
+
 $rules = [
-    'email' => function() use ($existingEmails) {
-        return validateEmail($_POST['email'], $existingEmails);
+    'email' => function() use ($email, $con) {
+        return validateEmail($email, $con);
     },
-    'login' => function() {
-        return validateLogin($_POST['login']);
+    'login' => function() use ($login) {
+        return validateLogin($login);
     },
-    'password' => function() {
-        return validatePassword($_POST['password']);
+    'password' => function() use ($password) {
+        return validatePassword($password);
     },
-    'password-repeat' => function() {
-        return validatePasswordRepeat($_POST['password'], $_POST['password-repeat']);
+    'password-repeat' => function() use ($passwordRepeat, $password) {
+        return validatePasswordRepeat($password, $passwordRepeat);
     },
     'userPic' => function() {
         return validateUserPic($_FILES['userpic-file']);
@@ -46,9 +41,7 @@ foreach ($_POST as $key => $value) {
 }
 
 if ($isSetUserPic) {
-    if (!in_array($_FILES['userpic-file']['type'], $fileTypes)) {
-        $errors['userPic'] = "Загрузите файл с расширением png, jpeg или gif";
-    }
+    $errors['userPic'] =  $rules['userPic']();
 }
 
 $errors = array_filter($errors);
