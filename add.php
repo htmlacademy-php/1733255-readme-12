@@ -117,8 +117,7 @@ if (count($_POST) > 0) {
         // Проверяем наличие тегов
         if (count($tags) > 0) {
             // Обновляем таблицу тегов
-            $insertTagsValues = str_repeat('(?),', count($tags));
-            $insertTagsValues = substr($insertTagsValues, 0, -1); // Убираем последнюю запятую
+            $insertTagsValues = prepareSqlInserts('(?),', $tags);
 
             $sqlInsertTags = '
             INSERT IGNORE INTO hashtags (hashtag)
@@ -126,8 +125,7 @@ if (count($_POST) > 0) {
             mysqli_stmt_execute(dbGetPrepareStmt($con, $sqlInsertTags, [...$tags]));
 
             // Получаем добавленные теги для определения их ID
-            $selectTagsValues = str_repeat('?,', count($tags));
-            $selectTagsValues = substr($selectTagsValues, 0, -1); // Убираем последнюю запятую
+            $selectTagsValues = prepareSqlInserts('?,', $tags);
 
             $sqlNewTags = '
             SELECT id, hashtag
@@ -145,9 +143,7 @@ if (count($_POST) > 0) {
             }
 
             // Подготавливаем данные для отправки в таблицу связи ID поста и ID тега
-
-            $insertTagsPostsValues = str_repeat('(? , ?),', count($tagIds));
-            $insertTagsPostsValues = substr($insertTagsPostsValues, 0, -1); // Убираем последнюю запятую
+            $insertTagsPostsValues = prepareSqlInserts('(? , ?),', $tagIds);
 
             // Добавляем ID поста к каждому ID хэштега
             $postTagsIds = [];
