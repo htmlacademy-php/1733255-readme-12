@@ -59,12 +59,12 @@ $tagsKey = 'tags';
                                     <!-- Заголовок -->
                                     <div class="adding-post__input-wrapper form__input-wrapper">
                                         <label class="adding-post__label form__label" for="heading">Заголовок <span class="form__input-required">*</span></label>
-                                        <div class="form__input-section <?= setErrorClass($titleKey, $errors) ?>">
+                                        <div class="form__input-section <?= getErrorClass($titleKey, $errors) ?>">
                                             <input class="adding-post__input form__input" id="heading" type="text" name="heading" placeholder="Введите заголовок" value="<?= htmlspecialchars($_POST[$titleKey] ?? '')?>">
                                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title">Заголовок сообщения</h3>
-                                                <p class="form__error-desc"><?= setErrorText($titleKey, $errors) ?></p>
+                                                <p class="form__error-desc"><?= getErrorText($titleKey, $errors) ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -81,12 +81,12 @@ $tagsKey = 'tags';
                                     <!-- Ссылка -->
                                     <div class="adding-post__input-wrapper form__input-wrapper">
                                         <label class="adding-post__label form__label" for="url"><?= $linkLable ?></label>
-                                        <div class="form__input-section <?= setErrorClass('url', $errors) ?>">
+                                        <div class="form__input-section <?= getErrorClass('url', $errors) ?>">
                                             <input class="adding-post__input form__input" id="url" type="text" name="url" placeholder="Введите ссылку" value="<?= htmlspecialchars($_POST[$linkKey] ?? '')?>">
                                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title">Заголовок сообщения</h3>
-                                                <p class="form__error-desc"><?= setErrorText('url', $errors) ?></p>
+                                                <p class="form__error-desc"><?= getErrorText('url', $errors) ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -101,12 +101,12 @@ $tagsKey = 'tags';
                                     <!-- Текст -->
                                     <div class="adding-post__textarea-wrapper form__textarea-wrapper">
                                         <label class="adding-post__label form__label" for="content"><?= $contentLable ?> <span class="form__input-required">*</span></label>
-                                        <div class="form__input-section <?= setErrorClass($textKey, $errors) ?>">
+                                        <div class="form__input-section <?= getErrorClass($textKey, $errors) ?>">
                                             <textarea class="adding-post__textarea form__textarea form__input" id="content" placeholder="<?= $contentPlaceholder ?>" name="content"><?= htmlspecialchars($_POST[$textKey] ?? '')?></textarea>
                                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title">Заголовок сообщения</h3>
-                                                <p class="form__error-desc"><?= setErrorText($textKey, $errors) ?></p>
+                                                <p class="form__error-desc"><?= getErrorText($textKey, $errors) ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -117,12 +117,12 @@ $tagsKey = 'tags';
                                     <!-- Автор цитаты -->
                                     <div class="adding-post__textarea-wrapper form__input-wrapper">
                                         <label class="adding-post__label form__label" for="author">Автор <span class="form__input-required">*</span></label>
-                                        <div class="form__input-section <?= setErrorClass($authorKey, $errors) ?>">
+                                        <div class="form__input-section <?= getErrorClass($authorKey, $errors) ?>">
                                             <input class="adding-post__input form__input" id="author" type="text" name="author" value="<?= htmlspecialchars($_POST[$authorKey] ?? '')?>">
                                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title">Заголовок сообщения</h3>
-                                                <p class="form__error-desc"><?= setErrorText($authorKey, $errors) ?></p>
+                                                <p class="form__error-desc"><?= getErrorText($authorKey, $errors) ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -130,12 +130,12 @@ $tagsKey = 'tags';
                                     <!-- Теги -->
                                     <div class="adding-post__input-wrapper form__input-wrapper">
                                         <label class="adding-post__label form__label" for="tags">Теги</label>
-                                        <div class="form__input-section <?= setErrorClass($tagsKey, $errors) ?>">
+                                        <div class="form__input-section <?= getErrorClass($tagsKey, $errors) ?>">
                                             <input class="adding-post__input form__input" id="tags" type="text" name="tags" placeholder="Введите теги через пробел" value="<?= htmlspecialchars($_POST[$tagsKey] ?? '')?>">
                                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title">Заголовок сообщения</h3>
-                                                <p class="form__error-desc"><?= setErrorText($tagsKey, $errors) ?></p>
+                                                <p class="form__error-desc"><?= getErrorText($tagsKey, $errors) ?></p>
                                             </div>
                                         </div>
                                     </div>
