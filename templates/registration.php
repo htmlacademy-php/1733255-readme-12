@@ -17,45 +17,45 @@ $passwordRepeatKey = 'password-repeat';
             <div class="form__text-inputs">
                 <div class="registration__input-wrapper form__input-wrapper">
                     <label class="registration__label form__label" for="registration-email">Электронная почта <span class="form__input-required">*</span></label>
-                    <div class="form__input-section <?= setErrorClass($mailKey, $errors) ?>">
+                    <div class="form__input-section <?= getErrorClass($mailKey, $errors) ?>">
                         <input value="<?= htmlspecialchars($_POST[$mailKey] ?? '') ?>" class="registration__input form__input" id="registration-email" type="email" name="email" placeholder="Укажите эл.почту">
                         <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                         <div class="form__error-text">
                             <h3 class="form__error-title">Заголовок сообщения</h3>
-                            <p class="form__error-desc"><?= setErrorText($mailKey, $errors) ?></p>
+                            <p class="form__error-desc"><?= getErrorText($mailKey, $errors) ?></p>
                         </div>
                     </div>
                 </div>
                 <div class="registration__input-wrapper form__input-wrapper">
                     <label class="registration__label form__label" for="registration-login">Логин <span class="form__input-required">*</span></label>
-                    <div class="form__input-section <?= setErrorClass($loginKey, $errors) ?>">
+                    <div class="form__input-section <?= getErrorClass($loginKey, $errors) ?>">
                         <input value="<?= htmlspecialchars($_POST[$loginKey] ?? '') ?>" class="registration__input form__input" id="registration-login" type="text" name="login" placeholder="Укажите логин">
                         <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                         <div class="form__error-text">
                             <h3 class="form__error-title">Заголовок сообщения</h3>
-                            <p class="form__error-desc"><?= setErrorText($loginKey, $errors) ?></p>
+                            <p class="form__error-desc"><?= getErrorText($loginKey, $errors) ?></p>
                         </div>
                     </div>
                 </div>
                 <div class="registration__input-wrapper form__input-wrapper">
                     <label class="registration__label form__label" for="registration-password">Пароль<span class="form__input-required">*</span></label>
-                    <div class="form__input-section <?= setErrorClass($passwordKey, $errors) ?>">
+                    <div class="form__input-section <?= getErrorClass($passwordKey, $errors) ?>">
                         <input value="<?= htmlspecialchars($_POST[$passwordKey] ?? '') ?>" class="registration__input form__input" id="registration-password" type="password" name="password" placeholder="Придумайте пароль">
                         <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                         <div class="form__error-text">
                             <h3 class="form__error-title">Заголовок сообщения</h3>
-                            <p class="form__error-desc"><?= setErrorText($passwordKey, $errors) ?></p>
+                            <p class="form__error-desc"><?= getErrorText($passwordKey, $errors) ?></p>
                         </div>
                     </div>
                 </div>
                 <div class="registration__input-wrapper form__input-wrapper">
                     <label class="registration__label form__label" for="registration-password-repeat">Повтор пароля<span class="form__input-required">*</span></label>
-                    <div class="form__input-section <?= setErrorClass($passwordRepeatKey, $errors) ?>">
+                    <div class="form__input-section <?= getErrorClass($passwordRepeatKey, $errors) ?>">
                         <input value="<?= htmlspecialchars($_POST[$passwordRepeatKey] ?? '') ?>" class="registration__input form__input" id="registration-password-repeat" type="password" name="password-repeat" placeholder="Повторите пароль">
                         <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                         <div class="form__error-text">
                             <h3 class="form__error-title">Заголовок сообщения</h3>
-                            <p class="form__error-desc"><?= setErrorText($passwordRepeatKey, $errors) ?></p>
+                            <p class="form__error-desc"><?= getErrorText($passwordRepeatKey, $errors) ?></p>
                         </div>
                     </div>
                 </div>
