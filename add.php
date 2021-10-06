@@ -33,16 +33,16 @@ if (isset($_GET['contentId']) && in_array($_GET['contentId'], $allowedContentTyp
 $errors=[];
 $rules = [
     'heading' => function() {
-        return validateTitle('heading');
+        return validateTitle($_POST['heading']);
     },
     'content' => function() {
-        return validateContent('content');
+        return validateContent($_POST['content']);
     },
     'author' => function() {
-        return validateAuthor('author');
+        return validateAuthor($_POST['author']);
     },
     'url' => function() {
-        return validateUrl('url');
+        return validateUrl($_POST['url']);
     },
 ];
 $fileTypes = ['image/png', 'image/jpeg', 'image/gif'];
@@ -116,78 +116,46 @@ if (count($_POST) > 0) {
 
         // Проверяем наличие тегов
         if (count($tags) > 0) {
-            $sqlTags = '
+            // Обновляем таблицу тегов
+            $insertTagsValues = prepareSqlInserts('(?),', $tags);
+
+            $sqlInsertTags = '
+            INSERT IGNORE INTO hashtags (hashtag)
+            VALUES ' . $insertTagsValues;
+            mysqli_stmt_execute(dbGetPrepareStmt($con, $sqlInsertTags, [...$tags]));
+
+            // Получаем добавленные теги для определения их ID
+            $selectTagsValues = prepareSqlInserts('?,', $tags);
+
+            $sqlNewTags = '
             SELECT id, hashtag
               FROM hashtags
-            ';
-            $resultOldTags = mysqli_query($con, $sqlTags);
-            $rowOldTags = mysqli_fetch_all($resultOldTags, MYSQLI_ASSOC);
+             WHERE hashtag IN (' . $selectTagsValues . ')';
+            $stmt = dbGetPrepareStmt($con, $sqlNewTags, [...$tags]);
+            mysqli_stmt_execute($stmt);
+            $resultNewTags = mysqli_stmt_get_result($stmt);
+            $rowUpdatedTags = mysqli_fetch_all($resultNewTags, MYSQLI_ASSOC);
 
-            $tagIds = []; // массив ID тегов для добавления в таблицу связей тега и поста
-
-            // Если тег уже в базе, сохраняем его ID и убираем из массива тегов поста
-            foreach ($rowOldTags as $oldTag) {
-                foreach ($tags as $tagIndex => $tagValue) {
-                    if ($oldTag['hashtag'] === $tagValue) {
-                        array_push($tagIds, intval($oldTag['id']));
-                        unset($tags[$tagIndex]);
-                    }
-                }
+            // Сохраняем ID добавленных в базу тегов
+            $tagIds = [];
+            foreach ($rowUpdatedTags as $tag) {
+                array_push($tagIds, $tag['id']);
             }
 
-            // Оставшиеся в массиве теги добавляем в таблицу тегов
-            if (count($tags) > 0) {
-                $insertTagValue = '(?)';
-                $insertTagValuesSum = [];
+            // Подготавливаем данные для отправки в таблицу связи ID поста и ID тега
+            $insertTagsPostsValues = prepareSqlInserts('(? , ?),', $tagIds);
 
-                $selectTagValue = '?';
-                $selectTagValuesSum = [];
-
-                foreach ($tags as $tag) {
-                    array_push($insertTagValuesSum, $insertTagValue);
-                    array_push($selectTagValuesSum, $selectTagValue);
-                }
-
-                $sqlCreateTags = '
-                INSERT INTO hashtags (hashtag)
-                VALUES ' . implode(',', $insertTagValuesSum);
-                mysqli_stmt_execute(dbGetPrepareStmt($con, $sqlCreateTags, [...$tags]));
-
-                // Получаем добавленные теги для определения их ID
-                $sqlNewTags = '
-                SELECT id, hashtag
-                  FROM hashtags
-                 WHERE hashtag IN (' . implode(',', $selectTagValuesSum) . ')';
-                $stmt = dbGetPrepareStmt($con, $sqlNewTags, [...$tags]);
-                mysqli_stmt_execute($stmt);
-                $resultNewTags = mysqli_stmt_get_result($stmt);
-                $rowUpdatedTags = mysqli_fetch_all($resultNewTags, MYSQLI_ASSOC);
-
-                // Сохраняем ID добавленных в базу тегов
-                foreach ($rowUpdatedTags as $updatedTag) {
-                    array_push($tagIds, $updatedTag['id']);
-                }
-
-                // Подготавливаем данные для отправки в таблицу связи ID поста и ID тега
-                $insertTagsPostsConValue = '(? , ?)';
-                $insertTagsPostsConValuesSum = [];
-
-                foreach ($tagIds as $tagId) {
-                    array_push($insertTagsPostsConValuesSum, $insertTagsPostsConValue);
-                }
-
-                // Добавляем ID поста к каждому ID хэштега
-                $postTagsIds = [];
-                foreach ($tagIds as $tagId) {
-                    array_push($postTagsIds, $newPostId);
-                    array_push($postTagsIds, $tagId);
-                }
-
-                $sqlTagsPostsCon = '
-                INSERT INTO posts_hashtags (post_id, hashtag_id)
-                VALUES ' . implode(',', $insertTagsPostsConValuesSum);
-                mysqli_stmt_execute(dbGetPrepareStmt($con, $sqlTagsPostsCon, [...$postTagsIds]));
+            // Добавляем ID поста к каждому ID хэштега
+            $postTagsIds = [];
+            foreach ($tagIds as $tagId) {
+                array_push($postTagsIds, $newPostId);
+                array_push($postTagsIds, $tagId);
             }
+
+            $sqlTagsPostsCon = '
+            INSERT INTO posts_hashtags (post_id, hashtag_id)
+            VALUES ' . $insertTagsPostsValues;
+            mysqli_stmt_execute(dbGetPrepareStmt($con, $sqlTagsPostsCon, [...$postTagsIds]));
         }
 
         // Перенаправляем на страницу поста
