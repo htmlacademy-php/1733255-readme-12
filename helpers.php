@@ -376,3 +376,13 @@ function prepareSqlInserts(string $mask, array $insertedValues): string
     $insertValues = str_repeat($mask, count($insertedValues));
     return substr($insertValues, 0, -1);// Убираем последнюю запятую
 }
+
+function parseLayoutData(string $mainContent, string $pageTitle): array
+{
+    return [
+        'pageContent' => $mainContent,
+        'userName' => $_SESSION['userName'],
+        'userAvatar' => $_SESSION['userAvatar'],
+        'pageTitle' => $pageTitle,
+    ];
+}
