@@ -1,6 +1,15 @@
 <?php
 require_once ('helpers.php');
-require_once ('validation.php');
+
+spl_autoload_register(function ($classname){
+    require_once ('validation/' . $classname . '.php');
+});
+
+session_start();
+
+if ( empty($_SESSION) ) {
+    header('Location: index.php');
+}
 
 // Соединение с БД для получения и отправки данных
 $con = mysqli_connect('localhost', 'root', '', 'readme');
@@ -30,31 +39,37 @@ if (isset($_GET['contentId']) && in_array($_GET['contentId'], $allowedContentTyp
     $currentContentTypeId = $_POST['contentId'];
 }
 
+$title = $_POST['heading'] ?? '';
+$content = $_POST['content'] ?? '';
+$author = $_POST['author'] ?? '';
+$url = $_POST['url'] ?? '';
+
 $errors=[];
 $rules = [
-    'heading' => function() {
-        return validateTitle($_POST['heading']);
+    'heading' => function() use ($title) {
+        $headingValidator = new RequiredValidator($title);
+        return $headingValidator->getMessage();
     },
-    'content' => function() {
-        return validateContent($_POST['content']);
+    'content' => function() use ($content) {
+        $contentValidator = new RequiredValidator($content);
+        return $contentValidator->getMessage();
     },
-    'author' => function() {
-        return validateAuthor($_POST['author']);
+    'author' => function() use ($author) {
+        $authorValidator = new RequiredValidator($author);
+        return $authorValidator->getMessage();
     },
-    'url' => function() {
-        return validateUrl($_POST['url']);
+    'url' => function() use ($url) {
+        $urlValidator = new UrlValidator($url);
+        return $urlValidator->getMessage();
     },
 ];
 $fileTypes = ['image/png', 'image/jpeg', 'image/gif'];
 
 if (count($_POST) > 0) {
     // Формируем переменные для SQL запроса
-    $title = $_POST['heading'] ?? '';
-    $content = $_POST['content'] ?? '';
-    $author = $_POST['author'] ?? '';
-    $tags = [];
     $video = $_POST['contentType'] === 'video' ? $_POST['url'] : '';
     $reference = $_POST['contentType'] === 'link' ? $_POST['url'] : '';
+    $tags = [];
     $userId = '2';
     $contentTypeId = $currentContentTypeId;
     $img = '';
@@ -163,10 +178,7 @@ if (count($_POST) > 0) {
     }
 }
 
-// Формируем страницу
-$userName = 'Игорь';
-
 $mainContent = include_template('add.php', ['postContentTypes' => $rowContentTypes, 'currentContentTypeId' => $currentContentTypeId, 'errors' => $errors]);
-$layoutContent = include_template('layout.php', ['pageContent' => $mainContent, 'userName' => $userName, 'pageTitle' => 'Добавление публикации']);
+$layoutContent = include_template('layout.php', parseLayoutData($mainContent, 'Добавление публикации'));
 
 print($layoutContent);
