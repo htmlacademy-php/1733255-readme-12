@@ -1,38 +1,70 @@
 <?php
 require_once ('helpers.php');
+require_once('validation/RequiredValidator.php');
 
-$currentContentTypeId = $_GET['contentId'] ?? false;
+session_start();
+
+if ( !empty($_SESSION) ) {
+    header('Location: feed.php');
+}
 
 $con = mysqli_connect('localhost', 'root', '', 'readme');
 mysqli_set_charset($con, "utf8");
-$sqlContentTypes = '
-SELECT type, title, id
-  FROM content_types;
-';
-$sqlPostList = "
-SELECT p.*, u.user_name, u.avatar, ct.type, ct.image_class
-  FROM posts p
-  JOIN users u ON p.user_id = u.id
-  JOIN content_types ct ON p.content_type_id = ct.id
- WHERE IF (?, p.content_type_id = ?, true)
- ORDER BY views DESC
- LIMIT 6;
-";
 
-$resultContentTypes = mysqli_query($con, $sqlContentTypes);
+$errors = [];
 
-$stmt = mysqli_prepare($con, $sqlPostList);
-mysqli_stmt_bind_param($stmt, 'ii', $currentContentTypeId, $currentContentTypeId);
-mysqli_stmt_execute($stmt);
-$resultPostList = mysqli_stmt_get_result($stmt);
+$login = $_POST['login'] ?? '';
+$password = $_POST['password'] ?? '';
 
-$rowContentTypes = mysqli_fetch_all($resultContentTypes, MYSQLI_ASSOC);
-$rowPostList = mysqli_fetch_all($resultPostList, MYSQLI_ASSOC);
+$rules = [
+    'login' => function() use ($login) {
+        $loginValidator = new RequiredValidator($login);
+        return $loginValidator->getMessage();
+    },
+    'password' => function() use ($password) {
+        $passwordValidator = new RequiredValidator($password);
+        return $passwordValidator->getMessage();
+    },
+];
 
-$userName = 'Игорь';
+foreach ($_POST as $key => $value) {
+    if (isset($rules[$key])) {
+        $rule = $rules[$key];
+        $errors[$key] = $rule();
+    }
+}
 
-$mainContent = include_template('main.php', ['contentTypes' => $rowContentTypes, 'postCards' => $rowPostList, 'currentContentTypeId' => $currentContentTypeId]);
+$errors = array_filter($errors);
 
-$layoutContent = include_template('layout.php', ['pageContent' => $mainContent, 'userName' => $userName,'pageTitle' => 'Главная']);
+if ( ! empty($login) && count($errors) === 0 ) {
+    $sqlUser = "
+    SELECT user_name, password, avatar
+      FROM users
+     WHERE user_name = ?
+    ";
+    $stmt = dbGetPrepareStmt($con, $sqlUser, [$login]);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $rowUser = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-print($layoutContent);
+    if ( empty($rowUser) ) {
+        $errors['login'] = 'Такого пользователя не существует';
+    } else {
+        $userName = $rowUser[0]['user_name'];
+        $userPassword = $rowUser[0]['password'];
+        $userAvatar= $rowUser[0]['avatar'];
+
+        if ( ! password_verify($password, $userPassword )) {
+            $errors['password'] = 'Неверный пароль';
+        } else {
+            $_SESSION['userName'] = $userName;
+            $_SESSION['userAvatar'] = $userAvatar;
+            header('Location: feed.php');
+        }
+    }
+}
+
+
+$content = include_template('main.php', ['errors' => $errors]);
+
+print($content);
