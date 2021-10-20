@@ -1,6 +1,9 @@
 <?php
 require_once ('helpers.php');
-require_once ('validation.php');
+
+spl_autoload_register(function ($classname){
+    require_once ('validation/' . $classname . '.php');
+});
 
 $con = mysqli_connect('localhost', 'root', '', 'readme');
 mysqli_set_charset($con, "utf8");
@@ -17,19 +20,24 @@ $passwordRepeat = $_POST['password-repeat'] ?? '';
 
 $rules = [
     'email' => function() use ($email, $con) {
-        return validateEmail($email, $con);
+        $emailValidator = new EmailValidator($email, $con);
+        return $emailValidator->getMessage();
     },
     'login' => function() use ($login) {
-        return validateLogin($login);
+        $loginValidator = new RequiredValidator($login);
+        return $loginValidator->getMessage();
     },
     'password' => function() use ($password) {
-        return validatePassword($password);
+        $passwordValidator = new RequiredValidator($password);
+        return $passwordValidator->getMessage();
     },
     'password-repeat' => function() use ($passwordRepeat, $password) {
-        return validatePasswordRepeat($password, $passwordRepeat);
+        $passwordRepeatValidator = new RepeatedValidator($passwordRepeat, $password);
+        return $passwordRepeatValidator->getMessage();
     },
     'userPic' => function() {
-        return validateUserPic($_FILES['userpic-file']);
+        $photoValidator = new PhotoValidator($_FILES['userpic-file']);
+        return $photoValidator->getMessage();
     },
 ];
 
@@ -64,7 +72,6 @@ if (count($errors) === 0 && !empty($_POST)) {
     header('Location: login.html');
 }
 
-
 $mainContent = include_template('registration.php', ['errors' => $errors]);
-$layoutContent = include_template('layout.php', ['pageContent' => $mainContent, 'pageTitle' => 'Главная']);
+$layoutContent = include_template('layout.php', ['pageContent' => $mainContent, 'pageTitle' => 'Регистрация']);
 print($layoutContent);
