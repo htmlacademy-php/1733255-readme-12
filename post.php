@@ -1,6 +1,12 @@
 <?php
 require_once('helpers.php');
 
+session_start();
+
+if ( empty($_SESSION) ) {
+    header('Location: index.php');
+}
+
 $currentPostId = $_GET['postId'] ?? false;
 
 /*
@@ -69,9 +75,7 @@ if (count($rowPost) === 0) {
 
 $postAuthorData = $rowPostAuthor[0] ?? null;
 
-$userName = 'Игорь';
-
 $mainContent = include_template('post.php', ['postDetails' => $rowPost[0], 'postHashtags' => $rowPostHashtags, 'postAuthorDetails' => $postAuthorData, 'postComments' => $rowPostComments]);
-$layoutContent = include_template('layout.php', ['pageContent' => $mainContent, 'userName' => $userName, 'pageTitle' => 'Пост']);
+$layoutContent = include_template('layout.php', parseLayoutData($mainContent, 'Пост'));
 
 print($layoutContent);
