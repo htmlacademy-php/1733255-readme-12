@@ -377,12 +377,12 @@ function prepareSqlInserts(string $mask, array $insertedValues): string
     return substr($insertValues, 0, -1);// Убираем последнюю запятую
 }
 
-function parseLayoutData(string $mainContent, string $pageTitle): array
+function prepareLayoutData(string $mainContent, string $pageTitle): array
 {
     return [
         'pageContent' => $mainContent,
-        'userName' => $_SESSION['userName'],
-        'userAvatar' => $_SESSION['userAvatar'],
+        'userName' => $_SESSION['userName'] ?? '',
+        'userAvatar' => $_SESSION['userAvatar'] ?? '',
         'pageTitle' => $pageTitle,
     ];
 }
