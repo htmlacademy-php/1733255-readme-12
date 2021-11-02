@@ -76,6 +76,6 @@ if (count($rowPost) === 0) {
 $postAuthorData = $rowPostAuthor[0] ?? null;
 
 $mainContent = include_template('post.php', ['postDetails' => $rowPost[0], 'postHashtags' => $rowPostHashtags, 'postAuthorDetails' => $postAuthorData, 'postComments' => $rowPostComments]);
-$layoutContent = include_template('layout.php', parseLayoutData($mainContent, 'Пост'));
+$layoutContent = include_template('layout.php', prepareLayoutData($mainContent, 'Пост'));
 
 print($layoutContent);
