@@ -8,6 +8,6 @@ if ( empty($_SESSION) ) {
 }
 
 $mainContent = include_template('feed.php');
-$layoutContent = include_template('layout.php', parseLayoutData($mainContent, 'Лента'));
+$layoutContent = include_template('layout.php', prepareLayoutData($mainContent, 'Лента'));
 
 print($layoutContent);
