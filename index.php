@@ -47,15 +47,17 @@ if ( ! empty($login) && count($errors) === 0 ) {
     $result = mysqli_stmt_get_result($stmt);
     $rowUser = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
+    $authError = 'Введен не верный логин или пароль';
+
     if ( empty($rowUser) ) {
-        $errors['login'] = 'Такого пользователя не существует';
+        $errors['login'] = $authError;
     } else {
         $userName = $rowUser[0]['user_name'];
         $userPassword = $rowUser[0]['password'];
         $userAvatar= $rowUser[0]['avatar'];
 
         if ( ! password_verify($password, $userPassword )) {
-            $errors['password'] = 'Неверный пароль';
+            $errors['password'] = $authError;
         } else {
             $_SESSION['userName'] = $userName;
             $_SESSION['userAvatar'] = $userAvatar;
