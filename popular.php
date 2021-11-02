@@ -36,6 +36,6 @@ $rowContentTypes = mysqli_fetch_all($resultContentTypes, MYSQLI_ASSOC);
 $rowPostList = mysqli_fetch_all($resultPostList, MYSQLI_ASSOC);
 
 $mainContent = include_template('popular.php', ['contentTypes' => $rowContentTypes, 'postCards' => $rowPostList, 'currentContentTypeId' => $currentContentTypeId]);
-$layoutContent = include_template('layout.php', parseLayoutData($mainContent, 'Популярное'));
+$layoutContent = include_template('layout.php', prepareLayoutData($mainContent, 'Популярное'));
 
 print($layoutContent);
