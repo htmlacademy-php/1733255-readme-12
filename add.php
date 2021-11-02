@@ -179,6 +179,6 @@ if (count($_POST) > 0) {
 }
 
 $mainContent = include_template('add.php', ['postContentTypes' => $rowContentTypes, 'currentContentTypeId' => $currentContentTypeId, 'errors' => $errors]);
-$layoutContent = include_template('layout.php', parseLayoutData($mainContent, 'Добавление публикации'));
+$layoutContent = include_template('layout.php', prepareLayoutData($mainContent, 'Добавление публикации'));
 
 print($layoutContent);
