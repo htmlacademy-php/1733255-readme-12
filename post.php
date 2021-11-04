@@ -1,11 +1,8 @@
 <?php
-require_once('helpers.php');
+require_once ('helpers.php');
+include 'autoloader.php';
 
-session_start();
-
-if ( empty($_SESSION) ) {
-    header('Location: index.php');
-}
+checkSession();
 
 $currentPostId = $_GET['postId'] ?? false;
 
@@ -17,65 +14,34 @@ if (!$currentPostId) {
     die();
 }
 
-$con = mysqli_connect('localhost', 'root', '', 'readme');
-mysqli_set_charset($con, "utf8");
-$sqlPost = "
-SELECT p.*, ct.type, COUNT(l.id) AS likes, COUNT(c.id) AS comments_total, u.avatar
-  FROM posts p
-  JOIN content_types ct ON p.content_type_id = ct.id
-  LEFT JOIN likes l ON p.id = l.post_id
-  LEFT JOIN comments c ON p.id = c.post_id
-  LEFT JOIN users u ON p.user_id = u.id
- WHERE p.id = ?
- GROUP BY p.id;
-";
+$postRepository = new PostRepository();
+$post = $postRepository->findByPostId($currentPostId);
 
-$sqlPostHashtags = "
-SELECT h.hashtag
-  FROM hashtags h
-  JOIN posts_hashtags ph ON h.id = ph.hashtag_id
- WHERE ph.post_id = ?;
-";
-/*
-  Комментарии к посту
- */
-$sqlPostComments = "
-SELECT c.content, c.publication_date AS date, u.user_name AS author, u.avatar
-  FROM comments c
-  JOIN posts p ON c.post_id = p.id
-  JOIN users u ON c.author_id = u.id
- WHERE c.post_id = ?;
-";
+$tagsRepository = new TagsRepository();
+$hashtags = $tagsRepository->findByPostId($currentPostId);
 
-/*
-  Подробная информация об авторе конкретного поста
- */
-$sqlPostAuthor = "
-SELECT u.registration_date AS date, u.user_name, u.avatar, COUNT(p.id) AS posts_total, COUNT(s.id) AS subscribers_total
-FROM posts p
-JOIN users u ON p.user_id = u.id
-LEFT JOIN subscriptions s ON u.id = s.author_id
-WHERE u.id IN
-     (SELECT p.user_id FROM posts p JOIN users u ON p.user_id = u.id WHERE p.id = ?)
-GROUP BY u.id;
-";
+$commentsRepository = new CommentsRepository();
+$comments= $commentsRepository->findByPostId($currentPostId);
 
-$rowPost = findUserPost($con, $sqlPost, $currentPostId);
-$rowPostHashtags = findUserPost($con, $sqlPostHashtags, $currentPostId);
-$rowPostComments = findUserPost($con, $sqlPostComments, $currentPostId);
-$rowPostAuthor = findUserPost($con, $sqlPostAuthor, $currentPostId);
+$authorRepository = new AuthorRepository();
+$author= $authorRepository->findByPostId($currentPostId);
 
 /*
   Выводим ошибку 404 если нет таких записей
  */
-if (count($rowPost) === 0) {
+if (count($post) === 0) {
     http_response_code(404);
     die();
 }
 
-$postAuthorData = $rowPostAuthor[0] ?? null;
+$postAuthorData = $author[0] ?? null;
 
-$mainContent = include_template('post.php', ['postDetails' => $rowPost[0], 'postHashtags' => $rowPostHashtags, 'postAuthorDetails' => $postAuthorData, 'postComments' => $rowPostComments]);
+$mainContent = include_template('post.php', [
+    'postDetails' => $post[0],
+    'postHashtags' => $hashtags,
+    'postAuthorDetails' => $postAuthorData,
+    'postComments' => $comments,
+]);
 $layoutContent = include_template('layout.php', prepareLayoutData($mainContent, 'Пост'));
 
 print($layoutContent);

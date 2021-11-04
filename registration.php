@@ -1,55 +1,48 @@
 <?php
 require_once ('helpers.php');
+include 'autoloader.php';
 
 spl_autoload_register(function ($classname){
     require_once ('validation/' . $classname . '.php');
 });
-
-$con = mysqli_connect('localhost', 'root', '', 'readme');
-mysqli_set_charset($con, "utf8");
 
 $isSetUserPic = isset($_FILES['userpic-file']) && !boolval($_FILES['userpic-file']['error']);
 
 $fileTypes = ['image/png', 'image/jpeg', 'image/gif'];
 $errors = [];
 
-$email = $_POST['email'] ?? '';
 $login = $_POST['login'] ?? '';
+$email = $_POST['email'] ?? '';
 $password = $_POST['password'] ?? '';
 $passwordRepeat = $_POST['password-repeat'] ?? '';
 
-$rules = [
-    'email' => function() use ($email, $con) {
-        $emailValidator = new EmailValidator($email, $con);
-        return $emailValidator->getMessage();
-    },
-    'login' => function() use ($login) {
-        $loginValidator = new RequiredValidator($login);
-        return $loginValidator->getMessage();
-    },
-    'password' => function() use ($password) {
-        $passwordValidator = new RequiredValidator($password);
-        return $passwordValidator->getMessage();
-    },
-    'password-repeat' => function() use ($passwordRepeat, $password) {
-        $passwordRepeatValidator = new RepeatedValidator($passwordRepeat, $password);
-        return $passwordRepeatValidator->getMessage();
-    },
-    'userPic' => function() {
-        $photoValidator = new PhotoValidator($_FILES['userpic-file']);
-        return $photoValidator->getMessage();
-    },
-];
-
-foreach ($_POST as $key => $value) {
-    if (isset($rules[$key])) {
-        $rule = $rules[$key];
-        $errors[$key] = $rule();
+if (!empty($_POST)) {
+    $loginValidator = new RequiredValidator();
+    if (!$loginValidator->validate($login)) {
+        $errors['login'] = $loginValidator->getError();
     }
-}
 
-if ($isSetUserPic) {
-    $errors['userPic'] =  $rules['userPic']();
+    $emailValidator = new EmailValidator(new UserRepository());
+    if (!$emailValidator->validate($email)) {
+        $errors['email'] = $emailValidator->getError();
+    }
+
+    $passwordValidator = new RequiredValidator();
+    if (!$passwordValidator->validate($password)) {
+        $errors['password'] = $passwordValidator->getError();
+    }
+
+    $passwordRepeatValidator = new RepeatedValidator();
+    if (!$passwordRepeatValidator->validate([$password, $passwordRepeat])) {
+        $errors['password-repeat'] = $passwordRepeatValidator->getError();
+    }
+
+    if ($isSetUserPic) {
+        $userPicValidator = new PhotoValidator();
+        if (!$userPicValidator->validate($_FILES['userpic-file'])) {
+            $errors['userPic'] = $userPicValidator->getError();
+        }
+    }
 }
 
 $errors = array_filter($errors);
@@ -63,13 +56,11 @@ if (count($errors) === 0 && !empty($_POST)) {
         $avatar = $fileName;
     }
     $passwordHash = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $sqlNewUser = '
-    INSERT INTO users (email, user_name, password, avatar)
-    VALUES (?, ?, ?, ?);
-    ';
-    mysqli_stmt_execute(dbGetPrepareStmt($con, $sqlNewUser, [$_POST['email'], $_POST['login'], $passwordHash, $avatar]));
 
-    header('Location: login.html');
+    $userRepository = new UserRepository();
+    $userRepository->add($email, $login, $passwordHash, $avatar);
+
+    header('Location: feed.php');
 }
 
 $mainContent = include_template('registration.php', ['errors' => $errors]);
