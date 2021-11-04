@@ -386,3 +386,11 @@ function prepareLayoutData(string $mainContent, string $pageTitle): array
         'pageTitle' => $pageTitle,
     ];
 }
+
+function checkSession()
+{
+    session_start();
+    if ( empty($_SESSION) ) {
+        header('Location: index.php');
+    }
+}
