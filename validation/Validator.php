@@ -1,15 +1,17 @@
 <?php
 
-class Validator
+abstract class Validator
 {
+    private string $error;
 
-    protected string $message = '';
+    protected function setError($error) {
+        $this->error = $error;
+    }
 
-    public function getMessage(): string
+    public function getError(): string
     {
-        return $this->message;
+        return $this->error;
     }
-    protected function setMessage($message) {
-        $this->message = $message;
-    }
+
+    abstract public function validate($value): bool;
 }

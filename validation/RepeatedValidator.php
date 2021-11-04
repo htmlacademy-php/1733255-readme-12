@@ -4,17 +4,18 @@ require_once('Validator.php');
 class RepeatedValidator extends Validator
 {
 
-    public function __construct(string $passwordRepeat, string $password)
+    public function validate($passwords): bool
     {
+        $password = $passwords[0];
+        $passwordRepeat = $passwords[1];
+
         if (empty($passwordRepeat)) {
-            $this->setMessage("Поле не заполнено");
+            $this->setError("Поле не заполнено");
+            return false;
         } elseif ($password !== $passwordRepeat) {
-            $this->setMessage("Пароли не совпадают");
-        } else {
-            return '';
+            $this->setError("Пароли не совпадают");
+            return false;
         }
-        if (empty($value)) {
-            $this->setMessage("Поле не заполнено");
-        }
+        return true;
     }
 }

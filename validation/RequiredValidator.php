@@ -4,10 +4,12 @@ require_once('Validator.php');
 class RequiredValidator extends Validator
 {
 
-    public function __construct(string $value)
+    public function validate($value): bool
     {
         if (empty($value)) {
-            $this->setMessage("Поле не заполнено");
+            $this->setError("Поле не заполнено");
+            return false;
         }
+        return true;
     }
 }

@@ -1,28 +1,32 @@
 <?php
 require_once('Validator.php');
+require_once('repository/UserRepository.php');
 
 class EmailValidator extends Validator
 {
 
-    public function __construct(string $email, mysqli $con)
+    private UserRepository $userRepository;
+
+    public function __construct(UserRepository $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
+
+    public function validate($email): bool
     {
         if (empty($email)) {
-            $this->setMessage("Поле не заполнено");
+            $this->setError("Поле не заполнено");
+            return false;
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->setMessage("Введите корректный email");
+            $this->setError("Введите корректный email");
+            return false;
         } else {
-            $sqlUser = '
-            SELECT email
-              FROM users
-             WHERE email = ?
-            ';
-            $stmt = dbGetPrepareStmt($con, $sqlUser, [$email]);
-            mysqli_stmt_execute($stmt);
-            $resultUser = mysqli_stmt_get_result($stmt);
-            $rowUser = mysqli_fetch_all($resultUser, MYSQLI_ASSOC);
-            if (!empty($rowUser)) {
-                $this->setMessage("Пользователь с такой электронной почтой уже существует");
+            $existUser = $this->userRepository->findByEmail($email);
+            if (!empty($existUser)) {
+                $this->setError('Пользователь с такой электронной почтой уже существует');
+                return false;
             }
         }
+        return true;
     }
 }
