@@ -21,13 +21,13 @@ $tagsKey = 'tags';
                     <ul class="adding-post__tabs-list filters__list tabs__list">
                     <?php foreach ($postContentTypes as $postContentType) : ?>
                         <li class="adding-post__tabs-item filters__item">
-                            <a class="adding-post__tabs-link filters__button filters__button--<?= htmlspecialchars($postContentType['type']) ?>
-                            <?= $currentContentTypeId === $postContentType['id']  ? 'filters__button--active tabs__item--active' : '' ?> tabs__item button"
-                            href="<?= modifyParamsPageUrl('contentId', $postContentType['id']); ?>">
+                            <a class="adding-post__tabs-link filters__button filters__button--<?= htmlspecialchars($postContentType->getType()) ?>
+                            <?= $currentContentTypeId === $postContentType->getId()  ? 'filters__button--active tabs__item--active' : '' ?> tabs__item button"
+                            href="<?= modifyParamsPageUrl('contentId', $postContentType->getId()); ?>">
                                 <svg class="filters__icon" width="22" height="18">
-                                    <use xlink:href="#icon-filter-<?= htmlspecialchars($postContentType['type']) ?>"></use>
+                                    <use xlink:href="#icon-filter-<?= htmlspecialchars($postContentType->getType()) ?>"></use>
                                 </svg>
-                                <span><?= htmlspecialchars($postContentType['title']) ?></span>
+                                <span><?= htmlspecialchars($postContentType->getTitle()) ?></span>
                             </a>
                         </li>
                     <?php endforeach; ?>
@@ -35,11 +35,13 @@ $tagsKey = 'tags';
                 </div>
                 <div class="adding-post__tab-content">
                     <?php
-                        $currentType = array_filter($postContentTypes, function($row) use ($currentContentTypeId) {
-                            return $row['id'] === $currentContentTypeId;
-                        }); // Находим нужный тип контента
-                        $currentType = array_values($currentType)[0]; // Убираем вложенность
-                        $hiddenFormTitle = match ($currentType['type']) {
+                        foreach ($postContentTypes as $postContentType) {
+                            if ($currentContentTypeId === $postContentType->getId()) {
+                                $currentType = $postContentType->getType();
+                            }
+                        }
+
+                        $hiddenFormTitle = match ($currentType) {
                         'text'  => 'текста',
                         'quote' => 'цитаты',
                         'link'  => 'ссылки',
@@ -47,13 +49,13 @@ $tagsKey = 'tags';
                         'video' => 'видео',
                         default => 'контента',
                         };
-                        $currentEnctype = $currentType['type'] === 'photo' ? 'enctype="multipart/form-data"' : '';
+                        $currentEnctype = $currentType === 'photo' ? 'enctype="multipart/form-data"' : '';
                     ?>
-                    <section class="adding-post__<?= $currentType['type'] ?> tabs__content tabs__content--active">
+                    <section class="adding-post__<?= $currentType ?> tabs__content tabs__content--active">
                         <h2 class="visually-hidden">Форма добавления <?= $hiddenFormTitle ?></h2>
                         <form class="adding-post__form form" action="add.php" method="post" <?= $currentEnctype ?>>
-                            <input type="hidden" name="contentId" value="<?= $currentType['id'] ?>"> <!-- ID контента для POST -->
-                            <input type="hidden" name="contentType" value="<?= $currentType['type'] ?>"> <!-- Тип контента для POST -->
+                            <input type="hidden" name="contentId" value="<?= $currentContentTypeId ?>"> <!-- ID контента для POST -->
+                            <input type="hidden" name="contentType" value="<?= $currentType ?>"> <!-- Тип контента для POST -->
                             <div class="form__text-inputs-wrapper">
                                 <div class="form__text-inputs">
                                     <!-- Заголовок -->
@@ -70,9 +72,9 @@ $tagsKey = 'tags';
                                     </div>
                                     <?php
                                     $typesWithLink = ['photo', 'video', 'link'];
-                                    if (in_array($currentType['type'], $typesWithLink, true)) :
+                                    if (in_array($currentType, $typesWithLink, true)) :
 
-                                    $linkLable = match ($currentType['type']) {
+                                    $linkLable = match ($currentType) {
                                         'photo' => 'Ссылка из интернета ',
                                         'video' => 'Ссылка youtube <span class="form__input-required">*</span>',
                                         'link' => 'Ссылка <span class="form__input-required">*</span>',
@@ -93,10 +95,10 @@ $tagsKey = 'tags';
                                     <?php
                                     endif;
                                     $typesWithText = ['quote', 'text'];
-                                    if (in_array($currentType['type'], $typesWithText, true)) :
+                                    if (in_array($currentType, $typesWithText, true)) :
 
-                                    $contentLable = $currentType['type'] === 'quote' ? 'Текст цитаты' : 'Текст поста';
-                                    $contentPlaceholder = $currentType['type'] === 'quote' ? $contentLable : 'Введите текст публикации';
+                                    $contentLable = $currentType === 'quote' ? 'Текст цитаты' : 'Текст поста';
+                                    $contentPlaceholder = $currentType === 'quote' ? $contentLable : 'Введите текст публикации';
                                     ?>
                                     <!-- Текст -->
                                     <div class="adding-post__textarea-wrapper form__textarea-wrapper">
@@ -112,7 +114,7 @@ $tagsKey = 'tags';
                                     </div>
                                     <?php
                                     endif;
-                                    if ($currentType['type'] === 'quote') :
+                                    if ($currentType === 'quote') :
                                     ?>
                                     <!-- Автор цитаты -->
                                     <div class="adding-post__textarea-wrapper form__input-wrapper">
@@ -161,7 +163,7 @@ $tagsKey = 'tags';
                                 </div>
                                 <?php endif; ?>
                             </div>
-                            <?php if ($currentType['type'] === 'photo') : ?>
+                            <?php if ($currentType === 'photo') : ?>
                             <!-- Загрузка фото -->
                             <div class="adding-post__input-file-container form__input-container form__input-container--file">
                                 <div class="adding-post__input-file-wrapper form__input-file-wrapper">

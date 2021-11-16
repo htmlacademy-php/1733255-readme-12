@@ -4,7 +4,7 @@ require_once('helpers.php');
 
 class TagsRepository extends Db
 {
-    public function add(array $tags)
+    public function save($tags, $newPostId)
     {
         $inserts = prepareSqlInserts('(?),', $tags);
 
@@ -12,6 +12,21 @@ class TagsRepository extends Db
             INSERT IGNORE INTO hashtags (hashtag)
             VALUES ' . $inserts;
         mysqli_stmt_execute(dbGetPrepareStmt($this->con, $sql, [...$tags]));
+
+        $updatedTags = $this->findUpdatedTagsForPost($tags);
+
+        $tagIds = [];
+        foreach ($updatedTags as $tag) {
+            array_push($tagIds, $tag['id']);
+        }
+
+        $postTagsIds = [];
+        foreach ($tagIds as $tagId) {
+            array_push($postTagsIds, $newPostId);
+            array_push($postTagsIds, $tagId);
+        }
+
+        $this->addPostConnection($tagIds, $postTagsIds);
     }
 
     public function addPostConnection(array $tagIds, array $postTagsIds)
@@ -24,7 +39,7 @@ class TagsRepository extends Db
         mysqli_stmt_execute(dbGetPrepareStmt($this->con, $sqlTagsPostsCon, [...$postTagsIds]));
     }
 
-    public function find(array $tags): array
+    public function findUpdatedTagsForPost(array $tags): array
     {
         $selects = prepareSqlInserts('?,', $tags);
 
@@ -49,6 +64,15 @@ class TagsRepository extends Db
         $stmt = dbGetPrepareStmt($this->con, $sql, [$postId]);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
-        return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+        $tags = [];
+
+        foreach ($rows as $row) {
+            $tag = $row['hashtag'] ?? '';
+            array_push($tags, new TagsModel($tag));
+        }
+
+        return $tags;
     }
 }

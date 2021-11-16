@@ -2,9 +2,9 @@
 
 class ContentTypeModel
 {
-    public string $id;
-    public string $type;
-    public string $title;
+    private string $id;
+    private string $type;
+    private string $title;
 
     public function __construct($id, $type, $title) {
         $this->id = $id;
@@ -12,12 +12,18 @@ class ContentTypeModel
         $this->title = $title;
     }
 
-    public function createArray(): array
+    public function getId(): string
     {
-        return [
-            'id' => $this->id,
-            'type' => $this->type,
-            'title' => $this->title,
-        ];
+        return $this->id;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->title;
     }
 }

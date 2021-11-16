@@ -16,7 +16,7 @@ class UserRepository extends Db
         return mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
 
-    public function findByName($name): array
+    public function findByName($name): UserModel|null
     {
         $sql = "
         SELECT user_name, password, avatar
@@ -26,7 +26,16 @@ class UserRepository extends Db
         $stmt = dbGetPrepareStmt($this->con, $sql, [$name]);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
-        return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        $row = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        if (!empty($row)) {
+            $row = array_shift($row);
+            $login = $row['user_name'] ?? '';
+            $email = $row['email'] ?? '';
+            $pwd = $row['password'] ?? '';
+            $avatar = $row['avatar'] ?? '';
+            return new UserModel($login, $email, $pwd, $avatar);
+        }
+        return null;
     }
 
     public function add($email, $login, $passwordHash, $avatar)

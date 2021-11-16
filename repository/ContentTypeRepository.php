@@ -13,11 +13,11 @@ class ContentTypeRepository extends Db
         ';
         $resultContentTypes = mysqli_query($this->con, $sql);
         $rows = mysqli_fetch_all($resultContentTypes, MYSQLI_ASSOC);
+
         foreach ($rows as $row) {
-            $contentTypeModel = new ContentTypeModel($row['id'], $row['type'], $row['title']);
-            $contentType = $contentTypeModel->createArray();
-            array_push($contentTypes, $contentType);
+            array_push($contentTypes, new ContentTypeModel($row['id'], $row['type'], $row['title']));
         }
+
         return $contentTypes;
     }
 }

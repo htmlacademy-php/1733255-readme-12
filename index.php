@@ -9,14 +9,14 @@ $errors = [];
 $login = $_POST['login'] ?? '';
 $password = $_POST['password'] ?? '';
 
-$loginValidator = new RequiredValidator();
-if (!$loginValidator->validate($login)) {
-    $errors['login'] = $loginValidator->getError();
+$requiredValidator = new RequiredValidator();
+
+if (!$requiredValidator->validate($login)) {
+    $errors['login'] = $requiredValidator->getError();
 }
 
-$passwordValidator = new RequiredValidator();
-if (!$passwordValidator->validate($password)) {
-    $errors['password'] = $passwordValidator->getError();
+if (!$requiredValidator->validate($password)) {
+    $errors['password'] = $requiredValidator->getError();
 }
 
 $errors = array_filter($errors);
@@ -27,12 +27,12 @@ if ( ! empty($login) && count($errors) === 0 ) {
 
     $authError = 'Введен не верный логин или пароль';
 
-    if ( empty($user) ) {
+    if ( ! $user ) {
         $errors['login'] = $authError;
     } else {
-        $userName = $user[0]['user_name'];
-        $userPassword = $user[0]['password'];
-        $userAvatar= $user[0]['avatar'];
+        $userName = $user->getUserName();
+        $userPassword = $user->getPassword();
+        $userAvatar= $user->getAvatar();
 
         if ( ! password_verify($password, $userPassword )) {
             $errors['password'] = $authError;

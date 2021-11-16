@@ -2,10 +2,6 @@
 require_once ('helpers.php');
 include 'autoloader.php';
 
-spl_autoload_register(function ($classname){
-    require_once ('validation/' . $classname . '.php');
-});
-
 $isSetUserPic = isset($_FILES['userpic-file']) && !boolval($_FILES['userpic-file']['error']);
 
 $fileTypes = ['image/png', 'image/jpeg', 'image/gif'];

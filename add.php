@@ -14,7 +14,7 @@ $currentContentTypeId = '1';
 // Допустимые формы
 $allowedContentTypeIds = [];
 foreach ($contentTypes as $contentType) {
-    array_push($allowedContentTypeIds, $contentType['id']);
+    array_push($allowedContentTypeIds, $contentType->getId());
 }
 
 // Показываем либо дефолтную форму, либо полученную через GET или POST (с валидацией)
@@ -44,24 +44,23 @@ if (count($_POST) > 0) {
 
     // Валидация полученных данных
     foreach ($_POST as $key => $value) {
+        $requiredValidator = new RequiredValidator();
+
         if ($key === 'heading') {
-            $titleValidator = new RequiredValidator();
-            if (!$titleValidator->validate($title)) {
-                $errors['heading'] = $titleValidator->getError();
+            if (!$requiredValidator->validate($title)) {
+                $errors['heading'] = $requiredValidator->getError();
             }
         }
 
         if ($key === 'content') {
-            $contentValidator = new RequiredValidator();
-            if (!$contentValidator->validate($content)) {
-                $errors['content'] = $contentValidator->getError();
+            if (!$requiredValidator->validate($content)) {
+                $errors['content'] = $requiredValidator->getError();
             }
         }
 
         if ($key === 'author') {
-            $authorValidator = new RequiredValidator();
-            if (!$authorValidator->validate($author)) {
-                $errors['author'] = $authorValidator->getError();
+            if (!$requiredValidator->validate($author)) {
+                $errors['author'] = $requiredValidator->getError();
             }
         }
 
@@ -111,33 +110,13 @@ if (count($_POST) > 0) {
         }
 
         // Добавляем пост в БД
+        $post = new PostModel($title, $content, $author, $img, $video, $reference, $userId, $contentTypeId);
         $postRepository = new PostRepository();
-        $newPostId = $postRepository->add([$title, $content, $author, $img, $video, $reference, $userId, $contentTypeId]);
+        $newPostId = $postRepository->save($post);
 
-        // Проверяем наличие тегов
         if (count($tags) > 0) {
-            // Обновляем таблицу тегов
             $tagsRepository = new TagsRepository();
-            $tagsRepository->add($tags);
-
-            // Получаем добавленные теги для определения их ID
-            $updatedTags = $tagsRepository->find($tags);
-
-            // Сохраняем ID добавленных в базу тегов
-            $tagIds = [];
-            foreach ($updatedTags as $tag) {
-                array_push($tagIds, $tag['id']);
-            }
-
-            // Добавляем ID поста к каждому ID хэштега
-            $postTagsIds = [];
-            foreach ($tagIds as $tagId) {
-                array_push($postTagsIds, $newPostId);
-                array_push($postTagsIds, $tagId);
-            }
-
-            // Связываем ID поста и ID тега
-            $tagsRepository->addPostConnection($tagIds, $postTagsIds);
+            $tagsRepository->save($tags, $newPostId);
         }
 
         // Перенаправляем на страницу поста

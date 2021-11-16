@@ -16,6 +16,19 @@ class CommentsRepository extends Db
         $stmt = dbGetPrepareStmt($this->con, $sql, [$postId]);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
-        return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+        $comments = [];
+
+        foreach ($rows as $row) {
+            $content = $row['content'] ?? '';
+            $date = $row['date'] ?? '';
+            $author = $row['author'] ?? '';
+            $avatar = $row['avatar'] ?? '';
+
+            array_push($comments, new CommentsModel($content, $date, $author, $avatar));
+        }
+
+        return $comments;
     }
 }

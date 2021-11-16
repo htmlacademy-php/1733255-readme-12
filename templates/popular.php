@@ -46,12 +46,12 @@
                 </li>
                 <?php foreach ($contentTypes as $contentType): ?>
                     <li class="popular__filters-item filters__item">
-                        <?php $activeClass = $currentContentTypeId === $contentType['id'] ? 'filters__button--active' : ''  ?>
-                        <a class="filters__button filters__button--<?= htmlspecialchars($contentType['type']) . ' ' . $activeClass ?> button"
-                           href="<?= modifyParamsPageUrl('contentId', $contentType['id']); ?>">
-                            <span class="visually-hidden"><?= htmlspecialchars($contentType['title']); ?></span>
+                        <?php $activeClass = $currentContentTypeId === $contentType->getId() ? 'filters__button--active' : ''  ?>
+                        <a class="filters__button filters__button--<?= htmlspecialchars($contentType->getType()) . ' ' . $activeClass ?> button"
+                           href="<?= modifyParamsPageUrl('contentId', $contentType->getId()); ?>">
+                            <span class="visually-hidden"><?= htmlspecialchars($contentType->getTitle()); ?></span>
                             <svg class="filters__icon" width="22" height="18">
-                                <use xlink:href="#icon-filter-<?= htmlspecialchars($contentType['type']); ?>"></use>
+                                <use xlink:href="#icon-filter-<?= htmlspecialchars($contentType->getType()); ?>"></use>
                             </svg>
                         </a>
                     </li>
@@ -61,21 +61,21 @@
     </div>
     <div class="popular__posts">
         <?php foreach ($postCards as $postIndex => $postCard): ?>
-            <article class="popular__post post <?= htmlspecialchars($postCard['image_class']); ?>">
+            <article class="popular__post post <?= htmlspecialchars($postCard->getImageClass()); ?>">
                 <header class="post__header">
-                    <h2><a href="post.php<?= '?postId=' . $postCard['id'] ?>"><?= htmlspecialchars($postCard['title']); ?></a></h2>
+                    <h2><a href="post.php<?= '?postId=' . $postCard->getId() ?>"><?= htmlspecialchars($postCard->getTitle()); ?></a></h2>
                 </header>
                 <div class="post__main">
-                    <?php if ($postCard['type'] == 'quote'): ?>
+                    <?php if ($postCard->getType() == 'quote'): ?>
                         <blockquote>
                             <p>
-                                <?= htmlspecialchars($postCard['content']); ?>
+                                <?= htmlspecialchars($postCard->getContent()); ?>
                             </p>
                             <cite>Неизвестный Автор</cite>
                         </blockquote>
-                    <?php elseif ($postCard['type'] == 'link'): ?>
+                    <?php elseif ($postCard->getType() == 'link'): ?>
                         <div class="post-link__wrapper">
-                            <a class="post-link__external" href="<?= getProtocolLink($postCard['reference']) ?>" title="Перейти по ссылке">
+                            <a class="post-link__external" href="<?= getProtocolLink($postCard->getReference()) ?>" title="Перейти по ссылке">
                                 <div class="post-link__info-wrapper">
                                     <div class="post-link__icon-wrapper">
                                         <img src="https://www.google.com/s2/favicons?domain=vitadental.ru"
@@ -85,41 +85,41 @@
                                         <h3><!--здесь заголовок--></h3>
                                     </div>
                                 </div>
-                                <span><?= htmlspecialchars($postCard['content']); ?></span>
+                                <span><?= htmlspecialchars($postCard->getContent()); ?></span>
                             </a>
                         </div>
-                    <?php elseif ($postCard['type'] == 'photo'): ?>
+                    <?php elseif ($postCard->getType() == 'photo'): ?>
                         <div class="post-photo__image-wrapper">
-                            <img src="img/<?= htmlspecialchars($postCard['img']); ?>" alt="Фото от пользователя" width="360"
+                            <img src="img/<?= htmlspecialchars($postCard->getImg()); ?>" alt="Фото от пользователя" width="360"
                                  height="240">
                         </div>
-                    <?php elseif ($postCard['type'] == 'video'): ?>
+                    <?php elseif ($postCard->getType() == 'video'): ?>
                         <div class="post-video__block">
                             <div class="post-video__preview">
-                                <?= embed_youtube_cover($postCard['video']); ?>
+                                <?= embed_youtube_cover($postCard->getVideo()); ?>
                             </div>
-                            <a href="post.php<?= '?postId=' . $postCard['id'] ?>" class="post-video__play-big button">
+                            <a href="post.php<?= '?postId=' . $postCard->getId() ?>" class="post-video__play-big button">
                                 <svg class="post-video__play-big-icon" width="14" height="14">
                                     <use xlink:href="#icon-video-play-big"></use>
                                 </svg>
                                 <span class="visually-hidden">Запустить проигрыватель</span>
                             </a>
                         </div>
-                    <?php elseif ($postCard['type'] == 'text'):
-                        echo shortenText(htmlspecialchars($postCard['content']), 300);
+                    <?php elseif ($postCard->getType() == 'text'):
+                        echo shortenText(htmlspecialchars($postCard->getContent()), 300);
                     endif; ?>
                 </div>
                 <footer class="post__footer">
                     <div class="post__author">
                         <a class="post__author-link" href="#" title="Автор">
                             <div class="post__avatar-wrapper">
-                                <?php if ($postCard['avatar']) : ?>
-                                <img class="post__author-avatar" src="img/<?= htmlspecialchars($postCard['avatar']); ?>"
+                                <?php if ($postCard->getAvatar()) : ?>
+                                <img class="post__author-avatar" src="img/<?= htmlspecialchars($postCard->getAvatar()); ?>"
                                      alt="Аватар пользователя">
                                 <?php endif; ?>
                             </div>
                             <div class="post__info">
-                                <b class="post__author-name"><?= htmlspecialchars($postCard['user_name']); ?></b>
+                                <b class="post__author-name"><?= htmlspecialchars($postCard->getUserName()); ?></b>
                                 <?php
                                     date_default_timezone_set('Europe/Moscow');
                                     $originalDate = generate_random_date($postIndex);
