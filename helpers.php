@@ -376,3 +376,21 @@ function prepareSqlInserts(string $mask, array $insertedValues): string
     $insertValues = str_repeat($mask, count($insertedValues));
     return substr($insertValues, 0, -1);// Убираем последнюю запятую
 }
+
+function prepareLayoutData(string $mainContent, string $pageTitle): array
+{
+    return [
+        'pageContent' => $mainContent,
+        'userName' => $_SESSION['userName'] ?? '',
+        'userAvatar' => $_SESSION['userAvatar'] ?? '',
+        'pageTitle' => $pageTitle,
+    ];
+}
+
+function checkSession()
+{
+    session_start();
+    if ( empty($_SESSION) ) {
+        header('Location: index.php');
+    }
+}

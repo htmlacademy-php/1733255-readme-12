@@ -1,38 +1,50 @@
 <?php
 require_once ('helpers.php');
+include 'autoloader.php';
 
-$currentContentTypeId = $_GET['contentId'] ?? false;
+session_start();
 
-$con = mysqli_connect('localhost', 'root', '', 'readme');
-mysqli_set_charset($con, "utf8");
-$sqlContentTypes = '
-SELECT type, title, id
-  FROM content_types;
-';
-$sqlPostList = "
-SELECT p.*, u.user_name, u.avatar, ct.type, ct.image_class
-  FROM posts p
-  JOIN users u ON p.user_id = u.id
-  JOIN content_types ct ON p.content_type_id = ct.id
- WHERE IF (?, p.content_type_id = ?, true)
- ORDER BY views DESC
- LIMIT 6;
-";
+$errors = [];
 
-$resultContentTypes = mysqli_query($con, $sqlContentTypes);
+$login = $_POST['login'] ?? '';
+$password = $_POST['password'] ?? '';
 
-$stmt = mysqli_prepare($con, $sqlPostList);
-mysqli_stmt_bind_param($stmt, 'ii', $currentContentTypeId, $currentContentTypeId);
-mysqli_stmt_execute($stmt);
-$resultPostList = mysqli_stmt_get_result($stmt);
+$requiredValidator = new RequiredValidator();
 
-$rowContentTypes = mysqli_fetch_all($resultContentTypes, MYSQLI_ASSOC);
-$rowPostList = mysqli_fetch_all($resultPostList, MYSQLI_ASSOC);
+if (!$requiredValidator->validate($login)) {
+    $errors['login'] = $requiredValidator->getError();
+}
 
-$userName = 'Игорь';
+if (!$requiredValidator->validate($password)) {
+    $errors['password'] = $requiredValidator->getError();
+}
 
-$mainContent = include_template('main.php', ['contentTypes' => $rowContentTypes, 'postCards' => $rowPostList, 'currentContentTypeId' => $currentContentTypeId]);
+$errors = array_filter($errors);
 
-$layoutContent = include_template('layout.php', ['pageContent' => $mainContent, 'userName' => $userName,'pageTitle' => 'Главная']);
+if ( ! empty($login) && count($errors) === 0 ) {
+    $userRepository = new UserRepository();
+    $user = $userRepository->findByName($login);
 
-print($layoutContent);
+    $authError = 'Введен не верный логин или пароль';
+
+    if ( ! $user ) {
+        $errors['login'] = $authError;
+    } else {
+        $userName = $user->getUserName();
+        $userPassword = $user->getPassword();
+        $userAvatar= $user->getAvatar();
+
+        if ( ! password_verify($password, $userPassword )) {
+            $errors['password'] = $authError;
+        } else {
+            $_SESSION['userName'] = $userName;
+            $_SESSION['userAvatar'] = $userAvatar;
+            header('Location: feed.php');
+        }
+    }
+}
+
+
+$content = include_template('main.php', ['errors' => $errors]);
+
+print($content);

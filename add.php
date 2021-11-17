@@ -1,26 +1,20 @@
 <?php
 require_once ('helpers.php');
-require_once ('validation.php');
+include 'autoloader.php';
 
-// Соединение с БД для получения и отправки данных
-$con = mysqli_connect('localhost', 'root', '', 'readme');
-mysqli_set_charset($con, "utf8");
+checkSession();
 
 // Получаем типы контента
-$sqlContentTypes = '
-SELECT type, title, id
-  FROM content_types;
-';
-$resultContentTypes = mysqli_query($con, $sqlContentTypes);
-$rowContentTypes = mysqli_fetch_all($resultContentTypes, MYSQLI_ASSOC);
+$contentTypeRepository = new ContentTypeRepository();
+$contentTypes = $contentTypeRepository->all();
 
 // Устанавливаем дефолтную форму
 $currentContentTypeId = '1';
 
 // Допустимые формы
 $allowedContentTypeIds = [];
-foreach ($rowContentTypes as $contentType) {
-    array_push($allowedContentTypeIds, $contentType['id']);
+foreach ($contentTypes as $contentType) {
+    array_push($allowedContentTypeIds, $contentType->getId());
 }
 
 // Показываем либо дефолтную форму, либо полученную через GET или POST (с валидацией)
@@ -31,39 +25,50 @@ if (isset($_GET['contentId']) && in_array($_GET['contentId'], $allowedContentTyp
 }
 
 $errors=[];
-$rules = [
-    'heading' => function() {
-        return validateTitle($_POST['heading']);
-    },
-    'content' => function() {
-        return validateContent($_POST['content']);
-    },
-    'author' => function() {
-        return validateAuthor($_POST['author']);
-    },
-    'url' => function() {
-        return validateUrl($_POST['url']);
-    },
-];
+
+$title = $_POST['heading'] ?? '';
+$content = $_POST['content'] ?? '';
+$author = $_POST['author'] ?? '';
+$url = $_POST['url'] ?? '';
+
 $fileTypes = ['image/png', 'image/jpeg', 'image/gif'];
 
 if (count($_POST) > 0) {
     // Формируем переменные для SQL запроса
-    $title = $_POST['heading'] ?? '';
-    $content = $_POST['content'] ?? '';
-    $author = $_POST['author'] ?? '';
-    $tags = [];
     $video = $_POST['contentType'] === 'video' ? $_POST['url'] : '';
     $reference = $_POST['contentType'] === 'link' ? $_POST['url'] : '';
+    $tags = [];
     $userId = '2';
     $contentTypeId = $currentContentTypeId;
     $img = '';
 
     // Валидация полученных данных
     foreach ($_POST as $key => $value) {
-        if (isset($rules[$key])) {
-            $rule = $rules[$key];
-            $errors[$key] = $rule();
+        $requiredValidator = new RequiredValidator();
+
+        if ($key === 'heading') {
+            if (!$requiredValidator->validate($title)) {
+                $errors['heading'] = $requiredValidator->getError();
+            }
+        }
+
+        if ($key === 'content') {
+            if (!$requiredValidator->validate($content)) {
+                $errors['content'] = $requiredValidator->getError();
+            }
+        }
+
+        if ($key === 'author') {
+            if (!$requiredValidator->validate($author)) {
+                $errors['author'] = $requiredValidator->getError();
+            }
+        }
+
+        if ($key === 'url') {
+            $urlValidator = new UrlValidator();
+            if (!$urlValidator->validate($url)) {
+                $errors['url'] = $urlValidator->getError();
+            }
         }
 
         //Проверяем наличие тегов
@@ -105,57 +110,13 @@ if (count($_POST) > 0) {
         }
 
         // Добавляем пост в БД
-        $sqlNewPost = '
-        INSERT INTO posts (title, content, author, img, video, reference, user_id, content_type_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-        ';
+        $post = new PostModel($title, $content, $author, $img, $video, $reference, $userId, $contentTypeId);
+        $postRepository = new PostRepository();
+        $newPostId = $postRepository->save($post);
 
-        mysqli_stmt_execute(dbGetPrepareStmt($con, $sqlNewPost, [$title, $content, $author, $img, $video, $reference, $userId, $contentTypeId]));
-
-        $newPostId = mysqli_insert_id($con); // Сохраняем ID нового поста
-
-        // Проверяем наличие тегов
         if (count($tags) > 0) {
-            // Обновляем таблицу тегов
-            $insertTagsValues = prepareSqlInserts('(?),', $tags);
-
-            $sqlInsertTags = '
-            INSERT IGNORE INTO hashtags (hashtag)
-            VALUES ' . $insertTagsValues;
-            mysqli_stmt_execute(dbGetPrepareStmt($con, $sqlInsertTags, [...$tags]));
-
-            // Получаем добавленные теги для определения их ID
-            $selectTagsValues = prepareSqlInserts('?,', $tags);
-
-            $sqlNewTags = '
-            SELECT id, hashtag
-              FROM hashtags
-             WHERE hashtag IN (' . $selectTagsValues . ')';
-            $stmt = dbGetPrepareStmt($con, $sqlNewTags, [...$tags]);
-            mysqli_stmt_execute($stmt);
-            $resultNewTags = mysqli_stmt_get_result($stmt);
-            $rowUpdatedTags = mysqli_fetch_all($resultNewTags, MYSQLI_ASSOC);
-
-            // Сохраняем ID добавленных в базу тегов
-            $tagIds = [];
-            foreach ($rowUpdatedTags as $tag) {
-                array_push($tagIds, $tag['id']);
-            }
-
-            // Подготавливаем данные для отправки в таблицу связи ID поста и ID тега
-            $insertTagsPostsValues = prepareSqlInserts('(? , ?),', $tagIds);
-
-            // Добавляем ID поста к каждому ID хэштега
-            $postTagsIds = [];
-            foreach ($tagIds as $tagId) {
-                array_push($postTagsIds, $newPostId);
-                array_push($postTagsIds, $tagId);
-            }
-
-            $sqlTagsPostsCon = '
-            INSERT INTO posts_hashtags (post_id, hashtag_id)
-            VALUES ' . $insertTagsPostsValues;
-            mysqli_stmt_execute(dbGetPrepareStmt($con, $sqlTagsPostsCon, [...$postTagsIds]));
+            $tagsRepository = new TagsRepository();
+            $tagsRepository->save($tags, $newPostId);
         }
 
         // Перенаправляем на страницу поста
@@ -163,10 +124,7 @@ if (count($_POST) > 0) {
     }
 }
 
-// Формируем страницу
-$userName = 'Игорь';
-
-$mainContent = include_template('add.php', ['postContentTypes' => $rowContentTypes, 'currentContentTypeId' => $currentContentTypeId, 'errors' => $errors]);
-$layoutContent = include_template('layout.php', ['pageContent' => $mainContent, 'userName' => $userName, 'pageTitle' => 'Добавление публикации']);
+$mainContent = include_template('add.php', ['postContentTypes' => $contentTypes, 'currentContentTypeId' => $currentContentTypeId, 'errors' => $errors]);
+$layoutContent = include_template('layout.php', prepareLayoutData($mainContent, 'Добавление публикации'));
 
 print($layoutContent);
